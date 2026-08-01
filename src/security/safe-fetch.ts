@@ -16,6 +16,7 @@ export interface SafeFetchOptions {
   fetcher?: typeof fetch;
   resolver?: DnsResolver;
   headers?: HeadersInit;
+  trustedHeaders?: HeadersInit;
   signal?: AbortSignal;
   limits?: Partial<ReachLimits>;
 }
@@ -83,6 +84,7 @@ export async function safeFetch(raw: string | URL, options: SafeFetchOptions = {
   const resolver = options.resolver ?? dohResolver;
   const limits = { ...LIMITS, ...options.limits };
   const headers = cleanHeaders(options.headers);
+  for (const [name, value] of new Headers(options.trustedHeaders)) headers.set(name, value);
   let current = new URL(raw);
 
   for (let redirects = 0; redirects <= limits.maxRedirects; redirects += 1) {
