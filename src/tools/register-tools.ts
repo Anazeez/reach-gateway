@@ -1,6 +1,5 @@
 import { McpServer } from "@modelcontextprotocol/server";
 
-import { BraveSearchAdapter } from "../adapters/brave-search";
 import { RedditAdapter } from "../adapters/reddit";
 import { AdapterRegistry } from "../adapters/registry";
 import { RssAdapter } from "../adapters/rss";
@@ -14,7 +13,6 @@ import {
   HealthInputSchema,
   ReadInputSchema,
   READ_ONLY_ANNOTATIONS,
-  SearchInputSchema,
   TranscriptInputSchema,
 } from "./schemas";
 
@@ -27,9 +25,6 @@ function registryFor(config: ReachConfig): AdapterRegistry {
     new RedditAdapter(),
     new RssAdapter(),
     new YouTubeAdapter(),
-    ...(["web", "x", "youtube", "reddit", "rss"] as const).map(
-      (source) => new BraveSearchAdapter(config.braveSearchApiKey, undefined, source),
-    ),
   ]);
 }
 
@@ -49,58 +44,10 @@ function toolResult(envelope: ReachEnvelope<unknown>) {
   };
 }
 
-async function searchMany(
-  registry: AdapterRegistry,
-  query: string,
-  sources: ReachSource[],
-  limit: number,
-  signal: AbortSignal,
-): Promise<ReachEnvelope<unknown>> {
-  const results = await Promise.all(
-    sources.map((source) =>
-      registry.execute({ operation: "search", source, query, limit, signal }),
-    ),
-  );
-  const passed = results.filter((result) => result.status === "passed");
-  return {
-    status: passed.length > 0 ? "passed" : "unavailable",
-    source: sources.length === 1 ? sources[0]! : "web",
-    operation: "search",
-    canonicalUrl: null,
-    retrievedAt: new Date().toISOString(),
-    backend: "reach-search@1",
-    content: passed.map((result) => result.content).filter(Boolean).join("\n\n"),
-    items: passed.flatMap((result) => result.items).slice(0, limit),
-    citations: passed.flatMap((result) => result.citations).slice(0, limit),
-    warnings: results.flatMap((result) => result.warnings),
-    reasonCode: passed.length > 0 ? null : "BACKEND_UNAVAILABLE",
-  };
-}
-
 export function createReachServer(env: Env): McpServer {
   const config = parseEnv(env);
   const registry = registryFor(config);
   const server = new McpServer({ name: "Reach Gateway", version: "0.1.0" });
-
-  server.registerTool(
-    "search",
-    {
-      title: "Search public evidence",
-      description: "Search bounded public sources and return normalized provenance.",
-      inputSchema: SearchInputSchema.shape,
-      annotations: READ_ONLY_ANNOTATIONS,
-    },
-    async ({ query, sources = ["web"], limit = 10 }, context) => {
-      const result = await searchMany(
-        registry,
-        query,
-        [...sources],
-        limit,
-        AbortSignal.timeout(config.limits.requestTimeoutMs),
-      );
-      return toolResult(result);
-    },
-  );
 
   server.registerTool(
     "read",

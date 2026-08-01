@@ -2,9 +2,9 @@
 
 Date: 2026-08-01
 Deployment status: `passed`
-Connection status: `unavailable`
-Current blocker: the owner must connect the deployed MCP once through the
-ChatGPT web New Plugin form and complete Cloudflare Access sign-in
+Connection status: `passed`
+Current blocker: universal directory publication and cross-surface discovery
+have not yet been verified
 
 ## Local candidate
 
@@ -33,13 +33,12 @@ ChatGPT web New Plugin form and complete Cloudflare Access sign-in
   service status, OAuth discovery exposed the issuer, registration endpoint,
   and S256, and unauthenticated `/mcp` returned `401` with protected-resource
   metadata
-- Authenticated MCP invocation: `unavailable` until the owner completes the
-  web OAuth connection
-- Brave search: `unavailable`; no Brave API key is configured. The read, X,
-  Reddit, RSS, YouTube transcript, and health capabilities remain deployable
-  independently.
-- Plugin publication/connection: `unavailable`; the production URL is ready,
-  but the owner-only listing has not yet been created and connected
+- Authenticated MCP invocation: `passed`; the owner completed Cloudflare Access
+  OAuth and invoked `read` through ChatGPT web.
+- Zero-paid boundary: `passed`; Reach exposes direct read, transcript, and
+  health capabilities without a paid search API. Discovery belongs to the host
+  ChatGPT or Codex surface.
+- Private ChatGPT web connection: `passed`.
 - Cross-device inheritance: `skipped`; it requires web installation and
   connection first, followed by discovery, invocation, and OAuth checks on each
   intended native ChatGPT and Codex surface

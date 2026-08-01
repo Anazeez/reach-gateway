@@ -2,16 +2,6 @@ import { z } from "zod";
 
 import { ReachSourceSchema } from "../contracts";
 
-export const SearchInputSchema = z
-  .object({
-    query: z.string().trim().min(1).max(1_000),
-    sources: z.array(ReachSourceSchema).min(1).max(5).optional(),
-    from: z.iso.datetime().optional(),
-    to: z.iso.datetime().optional(),
-    limit: z.number().int().min(1).max(20).default(10),
-  })
-  .strict();
-
 export const ReadInputSchema = z
   .object({
     url: z.url({ protocol: /^https$/u }),
@@ -37,12 +27,6 @@ export const READ_ONLY_ANNOTATIONS = Object.freeze({
 });
 
 export const TOOL_DEFINITIONS = [
-  {
-    name: "search",
-    title: "Search public evidence",
-    description: "Search public web, X, YouTube, Reddit, or feed evidence with provenance.",
-    annotations: READ_ONLY_ANNOTATIONS,
-  },
   {
     name: "read",
     title: "Read a public URL",

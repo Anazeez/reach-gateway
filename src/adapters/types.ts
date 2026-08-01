@@ -9,7 +9,6 @@ export interface AdapterRequest {
   operation: ReachOperation;
   source: ReachSource;
   url?: URL;
-  query?: string;
   limit: number;
   signal: AbortSignal;
 }

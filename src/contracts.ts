@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const ReachStatusSchema = z.enum(["passed", "failed", "unavailable"]);
 export const ReachSourceSchema = z.enum(["web", "x", "youtube", "reddit", "rss"]);
-export const ReachOperationSchema = z.enum(["search", "read", "transcript", "health"]);
+export const ReachOperationSchema = z.enum(["read", "transcript", "health"]);
 
 export const ReachReasonCodeSchema = z.enum([
   "AUTH_MISSING",
@@ -15,9 +15,7 @@ export const ReachReasonCodeSchema = z.enum([
   "AUTH_OWNER_DENIED",
   "INPUT_INVALID",
   "INPUT_URL_REQUIRED",
-  "INPUT_QUERY_REQUIRED",
   "INPUT_SOURCE_INVALID",
-  "INPUT_LIMIT_INVALID",
   "POLICY_DESTINATION_DENIED",
   "POLICY_PROTOCOL_DENIED",
   "POLICY_REDIRECT_DENIED",
@@ -36,7 +34,6 @@ export const ReachReasonCodeSchema = z.enum([
   "BACKEND_RATE_LIMITED",
   "BACKEND_AUTH_FAILED",
   "BACKEND_RESPONSE_INVALID",
-  "BACKEND_CONFIGURATION_MISSING",
   "CONTENT_EMPTY",
   "CONTENT_TRUNCATED",
   "CONTENT_UNTRUSTED",

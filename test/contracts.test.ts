@@ -9,7 +9,7 @@ describe("ReachEnvelopeSchema", () => {
     expect(ReachEnvelopeSchema.safeParse(value).success).toBe(false);
   });
 
-  it("accepts an explicit unavailable result", () => {
+  it("rejects the removed paid-search operation", () => {
     const value = {
       status: "unavailable",
       source: "x",
@@ -24,7 +24,7 @@ describe("ReachEnvelopeSchema", () => {
       reasonCode: "SOURCE_OPERATION_UNSUPPORTED",
     };
 
-    expect(ReachEnvelopeSchema.parse(value).status).toBe("unavailable");
+    expect(ReachEnvelopeSchema.safeParse(value).success).toBe(false);
   });
 
   it("rejects unknown envelope keys", () => {

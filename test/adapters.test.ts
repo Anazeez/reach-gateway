@@ -3,7 +3,6 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it, vi } from "vitest";
 
-import { BraveSearchAdapter } from "../src/adapters/brave-search";
 import { RedditAdapter } from "../src/adapters/reddit";
 import { RssAdapter } from "../src/adapters/rss";
 import { WebAdapter } from "../src/adapters/web";
@@ -116,19 +115,5 @@ describe("public adapters", () => {
 
     expect(result.content).toContain("First caption\nSecond caption");
     expect(transcript).toHaveBeenCalledWith("dQw4w9WgXcQ");
-  });
-
-  it("uses the fixed Brave endpoint and source filter", async () => {
-    const fetcher = fetchFixture(
-      JSON.stringify({ web: { results: [{ title: "Result", url: "https://x.com/post", description: "Description" }] } }),
-      "https://api.search.brave.com/res/v1/web/search",
-      "application/json",
-    );
-    const result = await new BraveSearchAdapter("test-key", fetcher).execute(
-      request({ operation: "search", source: "x", query: "agent reach", limit: 3 }),
-    );
-
-    expect(result.items).toHaveLength(1);
-    expect(String(fetcher.mock.calls[0]?.[0])).toContain("site%3Ax.com");
   });
 });

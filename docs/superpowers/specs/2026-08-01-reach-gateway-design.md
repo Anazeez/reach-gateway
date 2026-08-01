@@ -111,40 +111,20 @@ content. Content caching is disabled in version 1.
 
 ## 5. Tool Contract
 
-### 5.1 `search`
-
-Searches public sources using an optional source constraint.
-
-Input:
-
-```json
-{
-  "query": "string",
-  "sources": ["web", "x", "reddit", "youtube"],
-  "time_range": "optional bounded range",
-  "limit": 10
-}
-```
-
-The source list is an allowlist, not a promise that each source has a native
-search endpoint. A source may use source-directed public web search. The result
-must identify the backend and limitations. X timeline search is not promised in
-version 1.
-
-### 5.2 `read`
+### 5.1 `read`
 
 Reads one public URL after URL and destination validation. It classifies the
 source and selects the first healthy compatible adapter. It returns cleaned
 text, not executable page content.
 
-### 5.3 `transcript`
+### 5.2 `transcript`
 
 Extracts public captions or a public transcript from a supported video URL.
 It does not bypass authentication, digital-rights controls, or unavailable
 captions. Automatic speech recognition is outside version 1 unless later
 approved as a bounded fallback.
 
-### 5.4 `health`
+### 5.3 `health`
 
 Runs bounded live probes for requested channels and returns the selected
 backend, probe time, availability, degraded state, and a stable reason code.
@@ -159,7 +139,7 @@ Every tool returns a common envelope:
 {
   "status": "passed | failed | unavailable",
   "source": "web | x | youtube | reddit | rss",
-  "operation": "search | read | transcript | health",
+  "operation": "read | transcript | health",
   "canonical_url": "https://example.com/item",
   "retrieved_at": "RFC 3339 timestamp",
   "backend": "adapter identifier and version",
@@ -200,8 +180,7 @@ being accepted from marketing claims. The likely starting set is:
 - X: official public embed or syndication paths followed by an explicitly
   reviewed public compatibility reader for individual URLs;
 - video: a maintained public metadata and caption extractor;
-- Reddit: public page, RSS, or JSON paths with source-directed web search as a
-  degraded fallback;
+- Reddit: public page, RSS, or JSON paths;
 - RSS: a standards-compliant RSS/Atom parser.
 
 Backend selection is configuration-driven and versioned. Changing an adapter

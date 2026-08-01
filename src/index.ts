@@ -11,7 +11,6 @@ interface Env extends Record<string, string | undefined> {
   REACH_OAUTH_AUDIENCE: string;
   REACH_OWNER_SUB: string;
   REACH_PUBLIC_ORIGIN: string;
-  BRAVE_SEARCH_API_KEY: string;
   OPENAI_APPS_CHALLENGE?: string;
 }
 

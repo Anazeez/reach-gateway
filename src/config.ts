@@ -3,7 +3,6 @@ export const LIMITS = Object.freeze({
   maxResponseBytes: 2_000_000,
   maxContentChars: 120_000,
   requestTimeoutMs: 12_000,
-  maxSearchItems: 20,
 });
 
 export interface ReachLimits {
@@ -11,14 +10,12 @@ export interface ReachLimits {
   maxResponseBytes: number;
   maxContentChars: number;
   requestTimeoutMs: number;
-  maxSearchItems: number;
 }
 
 export interface ReachConfig {
   oauthIssuer: string;
   oauthAudience: string;
   ownerSub: string;
-  braveSearchApiKey: string;
   publicOrigin: string;
   limits: Readonly<ReachLimits>;
 }
@@ -55,14 +52,12 @@ export function parseEnv(env: Env): ReachConfig {
     oauthIssuer,
     oauthAudience: required(env, "REACH_OAUTH_AUDIENCE"),
     ownerSub: required(env, "REACH_OWNER_SUB"),
-    braveSearchApiKey: env.BRAVE_SEARCH_API_KEY?.trim() ?? "",
     publicOrigin,
     limits: Object.freeze({
       maxRedirects: positiveInteger(env, "REACH_MAX_REDIRECTS", LIMITS.maxRedirects),
       maxResponseBytes: positiveInteger(env, "REACH_MAX_RESPONSE_BYTES", LIMITS.maxResponseBytes),
       maxContentChars: positiveInteger(env, "REACH_MAX_CONTENT_CHARS", LIMITS.maxContentChars),
       requestTimeoutMs: positiveInteger(env, "REACH_REQUEST_TIMEOUT_MS", LIMITS.requestTimeoutMs),
-      maxSearchItems: positiveInteger(env, "REACH_MAX_SEARCH_ITEMS", LIMITS.maxSearchItems),
     }),
   };
 }

@@ -9,14 +9,12 @@ const fixtureConfig: ReachConfig = {
   oauthIssuer: "https://auth.example.com",
   oauthAudience: "https://reach-gateway.example.com",
   ownerSub: "owner-123",
-  braveSearchApiKey: "unused-test-key",
   publicOrigin: "https://reach-gateway.example.com",
   limits: {
     maxRedirects: 3,
     maxResponseBytes: 2_000_000,
     maxContentChars: 120_000,
     requestTimeoutMs: 12_000,
-    maxSearchItems: 20,
   },
 };
 

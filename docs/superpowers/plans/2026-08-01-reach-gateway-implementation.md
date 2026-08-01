@@ -4,16 +4,17 @@
 
 **Goal:** Build, deploy, privately publish, and cross-surface verify an owner-authenticated, stateless, read-only MCP gateway for public web, X, YouTube captions, Reddit, and RSS evidence.
 
-**Architecture:** A TypeScript Cloudflare Worker exposes four stateless MCP tools through `createMcpHandler`. An established OAuth 2.1 identity provider authenticates the owner; the Worker is only a resource server and verifies issuer, audience, expiry, scope, and exact owner identity on every request. Source adapters share one SSRF-safe fetch layer and return a normalized evidence envelope through a deterministic ordered registry.
+**Architecture:** A TypeScript Cloudflare Worker exposes three stateless MCP tools through `createMcpHandler`. An established OAuth 2.1 identity provider authenticates the owner; the Worker is only a resource server and verifies issuer, audience, expiry, scope, and exact owner identity on every request. Source adapters share one SSRF-safe fetch layer and return a normalized evidence envelope through a deterministic ordered registry. Discovery remains the host assistant's responsibility so the gateway has no paid search-API dependency.
 
-**Tech Stack:** Node.js 24.18.0, TypeScript 7.0.2, Cloudflare Workers, `agents` 0.20.1, `@modelcontextprotocol/server` 2.0.0, Zod 4.4.3, JOSE 6.2.6, Vitest 4.1.10, Wrangler 4.118.0, Brave Search API, and an audited Worker-compatible YouTube caption extractor.
+**Tech Stack:** Node.js 24.18.0, TypeScript 7.0.2, Cloudflare Workers, `agents` 0.20.1, `@modelcontextprotocol/server` 2.0.0, Zod 4.4.3, JOSE 6.2.6, Vitest 4.1.10, Wrangler 4.118.0, and an audited Worker-compatible YouTube caption extractor.
 
 ## Global Constraints
 
 - Version 1 is owner-authenticated, owner-private, public-source only, read-only, and stateless with respect to conversations, retrieved content, cookies, and source accounts.
 - Do not store or accept browser cookies, source-account sessions, private-feed credentials, page bodies, transcripts, or conversation content.
 - Prefer existing OpenAI web and GitHub integrations when they are stronger or more authoritative.
-- Expose exactly four user tools: `search`, `read`, `transcript`, and `health`.
+- Expose exactly three user tools: `read`, `transcript`, and `health`.
+- Use no paid API. ChatGPT or Codex performs discovery with its native capabilities; Reach retrieves supplied public URLs.
 - Every result reports exactly `passed`, `failed`, or `unavailable` with backend, retrieval time, provenance, warnings, and a stable reason code.
 - Authorization and policy failures never fall back to a more permissive adapter.
 - Tool annotations are `readOnlyHint: true`, `destructiveHint: false`, and `openWorldHint: false`.
@@ -53,9 +54,8 @@ src/adapters/x.ts                         public single-post retrieval
 src/adapters/reddit.ts                    public post, comment, and search retrieval
 src/adapters/rss.ts                       RSS/Atom parsing
 src/adapters/youtube.ts                   public caption retrieval
-src/adapters/brave-search.ts              web and source-directed search
-src/tools/schemas.ts                      four MCP input/output schemas
-src/tools/register-tools.ts               metadata and handlers for four MCP tools
+src/tools/schemas.ts                      three MCP input/output schemas
+src/tools/register-tools.ts               metadata and handlers for three MCP tools
 src/health.ts                             bounded live channel probes
 src/legal.ts                              privacy, terms, support, and version responses
 test/fixtures/                            inert HTML, RSS, Reddit, X, caption, redirect, and attack fixtures
@@ -90,13 +90,12 @@ docs/evidence/release-verification.md      production, install, discovery, and r
 ```ts
 export type ReachStatus = "passed" | "failed" | "unavailable";
 export type ReachSource = "web" | "x" | "youtube" | "reddit" | "rss";
-export type ReachOperation = "search" | "read" | "transcript" | "health";
+export type ReachOperation = "read" | "transcript" | "health";
 
 export interface ReachConfig {
   oauthIssuer: string;
   oauthAudience: string;
   ownerSub: string;
-  braveSearchApiKey: string;
   publicOrigin: string;
   limits: typeof LIMITS;
 }
@@ -124,7 +123,6 @@ export interface AdapterRequest {
   operation: ReachOperation;
   source: ReachSource;
   url?: URL;
-  query?: string;
   limit: number;
   signal: AbortSignal;
 }
@@ -302,14 +300,14 @@ it("rejects success without retrieval provenance", () => {
   expect(ReachEnvelopeSchema.safeParse(value).success).toBe(false);
 });
 
-it("accepts an explicit unavailable result", () => {
+it("rejects the removed paid-search operation", () => {
   const value = {
     status: "unavailable", source: "x", operation: "search",
     canonicalUrl: null, retrievedAt: "2026-08-01T00:00:00.000Z",
     backend: "none", content: null, items: [], citations: [],
     warnings: [], reasonCode: "SOURCE_OPERATION_UNSUPPORTED"
   };
-  expect(ReachEnvelopeSchema.parse(value).status).toBe("unavailable");
+  expect(ReachEnvelopeSchema.safeParse(value).success).toBe(false);
 });
 ```
 
@@ -321,7 +319,7 @@ Expected: FAIL because `src/contracts.ts` is missing.
 
 - [ ] **Step 5: Implement strict configuration, contracts, and error mapping**
 
-Define the locked interfaces, a closed `ReachReasonCode` enum for all `AUTH_*`, `INPUT_*`, `POLICY_*`, `SOURCE_*`, `BACKEND_*`, `CONTENT_*`, and `INTERNAL_*` cases, and Zod schemas that reject unknown keys. `parseEnv` must require `REACH_OAUTH_ISSUER`, `REACH_OAUTH_AUDIENCE`, `REACH_OWNER_SUB`, `BRAVE_SEARCH_API_KEY`, and numeric limits with conservative defaults.
+Define the locked interfaces, a closed `ReachReasonCode` enum for all `AUTH_*`, `INPUT_*`, `POLICY_*`, `SOURCE_*`, `BACKEND_*`, `CONTENT_*`, and `INTERNAL_*` cases, and Zod schemas that reject unknown keys. `parseEnv` must require `REACH_OAUTH_ISSUER`, `REACH_OAUTH_AUDIENCE`, `REACH_OWNER_SUB`, and numeric limits with conservative defaults.
 
 ```ts
 export const LIMITS = Object.freeze({
@@ -329,7 +327,6 @@ export const LIMITS = Object.freeze({
   maxResponseBytes: 2_000_000,
   maxContentChars: 120_000,
   requestTimeoutMs: 12_000,
-  maxSearchItems: 20,
 });
 ```
 
@@ -491,7 +488,6 @@ git commit -m "feat: add bounded public retrieval policy"
 - Create: `src/adapters/reddit.ts`
 - Create: `src/adapters/rss.ts`
 - Create: `src/adapters/youtube.ts`
-- Create: `src/adapters/brave-search.ts`
 - Create: `test/registry.test.ts`
 - Create: `test/adapters.test.ts`
 - Create: `test/fixtures/article.html`
@@ -543,24 +539,20 @@ The X adapter reads individual post URLs through reviewed public embed or syndic
 
 Wrap `youtube-transcript` behind the adapter interface. Accept only supported public video hostnames and validated video IDs. Return `CONTENT_TRANSCRIPT_MISSING` when captions are absent. Do not invoke speech recognition, proxy around regional restrictions, or accept cookies.
 
-- [ ] **Step 7: Implement Brave source-directed search**
-
-Call only `https://api.search.brave.com/res/v1/web/search`, keep the key in a Worker secret, cap results at 20, and add exact site filters for requested sources. Redact the subscription token from all errors. When the key is absent, `health` reports `unavailable` with `BACKEND_CONFIGURATION_MISSING`.
-
-- [ ] **Step 8: Verify fixtures and fallback behavior**
+- [ ] **Step 7: Verify fixtures and fallback behavior**
 
 Run: `npm test -- test/registry.test.ts test/adapters.test.ts`
 
 Expected: PASS with no network access.
 
-- [ ] **Step 9: Commit adapters**
+- [ ] **Step 8: Commit adapters**
 
 ```bash
 git add src/adapters test/registry.test.ts test/adapters.test.ts test/fixtures
 git commit -m "feat: add public evidence adapters"
 ```
 
-### Task 6: Expose the four stateless MCP tools
+### Task 6: Expose the three stateless MCP tools
 
 **Files:**
 - Create: `src/tools/schemas.ts`
@@ -578,10 +570,10 @@ git commit -m "feat: add public evidence adapters"
 - [ ] **Step 1: Write failing MCP metadata tests**
 
 ```ts
-it("publishes exactly four read-only tools", async () => {
+it("publishes exactly three read-only tools", async () => {
   const tools = await listTools(createReachServer(fixtureEnv));
   expect(tools.map((tool) => tool.name).sort())
-    .toEqual(["health", "read", "search", "transcript"]);
+    .toEqual(["health", "read", "transcript"]);
   for (const tool of tools) {
     expect(tool.annotations).toEqual({
       readOnlyHint: true, destructiveHint: false, openWorldHint: false
@@ -598,7 +590,7 @@ Expected: FAIL because the server entry point is missing.
 
 - [ ] **Step 3: Define strict input and output schemas**
 
-`search` accepts query, optional source array, optional bounded RFC 3339 range, and limit 1–20. `read` accepts one HTTPS URL. `transcript` accepts one supported video URL. `health` accepts zero or more unique sources. All schemas reject unknown keys and declare the common envelope output.
+`read` accepts one HTTPS URL. `transcript` accepts one supported video URL. `health` accepts zero or more unique sources. All schemas reject unknown keys and declare the common envelope output.
 
 - [ ] **Step 4: Register the tools with stable metadata**
 
@@ -665,7 +657,6 @@ Run each command interactively:
 npx wrangler secret put REACH_OAUTH_ISSUER
 npx wrangler secret put REACH_OAUTH_AUDIENCE
 npx wrangler secret put REACH_OWNER_SUB
-npx wrangler secret put BRAVE_SEARCH_API_KEY
 npx wrangler secret put OPENAI_APPS_CHALLENGE
 ```
 

@@ -9,15 +9,13 @@ const fixtureEnv = {
   REACH_OAUTH_AUDIENCE: "https://reach-gateway.example.com",
   REACH_OWNER_SUB: "owner-123",
   REACH_PUBLIC_ORIGIN: "https://reach-gateway.example.com",
-  BRAVE_SEARCH_API_KEY: "test-key",
 };
 
 describe("MCP tool contract", () => {
-  it("publishes exactly four read-only tools", () => {
+  it("publishes only the three zero-paid retrieval tools", () => {
     expect(TOOL_DEFINITIONS.map((tool) => tool.name).sort()).toEqual([
       "health",
       "read",
-      "search",
       "transcript",
     ]);
     for (const tool of TOOL_DEFINITIONS) {

@@ -7,7 +7,6 @@ const fixtureEnv = {
   REACH_OAUTH_AUDIENCE: "https://reach-gateway.example.com",
   REACH_OWNER_SUB: "owner-123",
   REACH_PUBLIC_ORIGIN: "https://reach-gateway.example.com",
-  BRAVE_SEARCH_API_KEY: "test-key",
   OPENAI_APPS_CHALLENGE: "challenge-value",
 };
 
