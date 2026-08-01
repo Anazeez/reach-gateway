@@ -32,12 +32,15 @@ Remaining acceptance blocker: exact native ChatGPT-app and custom-GPT invocation
 - Package test catalog: `passed`; 8 positive and refusal cases parse as valid JSON.
 - Fresh Codex skill discovery: `passed`; a clean ephemeral invocation selected `reach-gateway` by exact name.
 - Fresh Codex app invocation: `passed`; `codex_apps/reach_the_g.health` returned overall `passed` and `passed` for Web, X, YouTube, Reddit, and RSS at 2026-08-01T20:27Z.
+- Production rollback and exact-version restore: `passed` in `https://github.com/Anazeez/auralis/actions/runs/30717335886`. The drill verified the active and target IDs, moved 100% of traffic to `841c5e78-f355-4ded-bc6e-2f22ba63a38a`, probed public health and unauthenticated fail-closed behavior, and restored `b7e344d1-b0f2-44c2-99ea-58ba8c57d950` to 100%.
+- Post-restore authenticated Codex health: `passed` at 2026-08-01T20:37Z for all five channels.
 
 ## Deployment and authentication
 
 - Production MCP URL: `https://reach-gateway.izeesub.workers.dev/mcp`
 - Public health URL: `https://reach-gateway.izeesub.workers.dev/healthz`
 - Deployment workflow: `passed` at `https://github.com/Anazeez/auralis/actions/runs/30712497532`.
+- Rollback workflow source: `Anazeez/auralis@647519f42d384e81e9bb0e63e13cf0ad884f2f5d`.
 - Workflow source pin: `643ad53fbfb977f0231aa0b9fa21d2dabd8dbc3c`.
 - Current Cloudflare Worker version ID after owner-secret injection: `b7e344d1-b0f2-44c2-99ea-58ba8c57d950`.
 - OAuth issuer: `https://noisy-pond-95ae.cloudflareaccess.com`.
