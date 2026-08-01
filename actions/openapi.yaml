@@ -296,8 +296,8 @@
         "type": "oauth2",
         "flows": {
           "authorizationCode": {
-            "authorizationUrl": "https://noisy-pond-95ae.cloudflareaccess.com/cdn-cgi/access/oauth/authorization",
-            "tokenUrl": "https://noisy-pond-95ae.cloudflareaccess.com/cdn-cgi/access/oauth/token",
+            "authorizationUrl": "https://noisy-pond-95ae.cloudflareaccess.com/cdn-cgi/access/oauth/authorization?resource=https%3A%2F%2Freach-gateway.izeesub.workers.dev",
+            "tokenUrl": "https://noisy-pond-95ae.cloudflareaccess.com/cdn-cgi/access/oauth/token?resource=https%3A%2F%2Freach-gateway.izeesub.workers.dev",
             "scopes": {
               "reach:read": "Read public evidence through the owner-private Reach gateway"
             }

@@ -41,6 +41,18 @@ describe("Custom GPT Actions facade", () => {
     );
   });
 
+  it("declares the protected resource in both Cloudflare OAuth endpoints", () => {
+    const flow =
+      OPENAPI_DOCUMENT.components.securitySchemes.oauth.flows.authorizationCode;
+
+    expect(flow.authorizationUrl).toBe(
+      "https://noisy-pond-95ae.cloudflareaccess.com/cdn-cgi/access/oauth/authorization?resource=https%3A%2F%2Freach-gateway.izeesub.workers.dev",
+    );
+    expect(flow.tokenUrl).toBe(
+      "https://noisy-pond-95ae.cloudflareaccess.com/cdn-cgi/access/oauth/token?resource=https%3A%2F%2Freach-gateway.izeesub.workers.dev",
+    );
+  });
+
   it("routes a JSON action request through the shared Reach executor", async () => {
     const execute = vi.fn().mockResolvedValue(passedEnvelope);
     const response = await handleActionRequest(

@@ -15,6 +15,7 @@ type Executor = (
 
 const ORIGIN = "https://reach-gateway.izeesub.workers.dev";
 const ISSUER = "https://noisy-pond-95ae.cloudflareaccess.com";
+const OAUTH_RESOURCE = `resource=${encodeURIComponent(ORIGIN)}`;
 
 const envelopeSchema = {
   type: "object",
@@ -170,8 +171,8 @@ export const OPENAPI_DOCUMENT = Object.freeze({
         type: "oauth2",
         flows: {
           authorizationCode: {
-            authorizationUrl: `${ISSUER}/cdn-cgi/access/oauth/authorization`,
-            tokenUrl: `${ISSUER}/cdn-cgi/access/oauth/token`,
+            authorizationUrl: `${ISSUER}/cdn-cgi/access/oauth/authorization?${OAUTH_RESOURCE}`,
+            tokenUrl: `${ISSUER}/cdn-cgi/access/oauth/token?${OAUTH_RESOURCE}`,
             scopes: {
               "reach:read": "Read public evidence through the owner-private Reach gateway",
             },
