@@ -1,5 +1,6 @@
 import { createMcpHandler } from "agents/mcp/server";
 
+import { handleActionRequest, openApiResponse } from "./actions";
 import { oauthChallenge, protectedResourceMetadata } from "./auth/metadata";
 import { AuthError, verifyOwner } from "./auth/verify-owner";
 import { parseEnv } from "./config";
@@ -18,6 +19,7 @@ async function handle(request: Request, env: Env, context: ExecutionContext): Pr
   const url = new URL(request.url);
 
   if (url.pathname === "/healthz") return healthzResponse();
+  if (url.pathname === "/openapi.json") return openApiResponse();
   if (url.pathname === "/version") return versionResponse();
   if (url.pathname === "/privacy") return legalResponse("privacy");
   if (url.pathname === "/terms") return legalResponse("terms");
@@ -33,7 +35,9 @@ async function handle(request: Request, env: Env, context: ExecutionContext): Pr
     return Response.json(protectedResourceMetadata(config));
   }
 
-  if (url.pathname !== "/mcp") return new Response("Not found\n", { status: 404 });
+  const isMcp = url.pathname === "/mcp";
+  const isAction = url.pathname.startsWith("/v1/reach/");
+  if (!isMcp && !isAction) return new Response("Not found\n", { status: 404 });
 
   try {
     await verifyOwner(request, config);
@@ -57,6 +61,8 @@ async function handle(request: Request, env: Env, context: ExecutionContext): Pr
       },
     );
   }
+
+  if (isAction) return handleActionRequest(request, env);
 
   const handler = createMcpHandler(() => createReachServer(env), {
     route: "/mcp",

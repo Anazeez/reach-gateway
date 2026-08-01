@@ -55,6 +55,16 @@ test("plans an owner-private Managed OAuth application without exposing the owne
     },
   });
   assert.equal(plan.policy.name, "Reach owner access");
+  assert.deepEqual(plan.schemaApp, {
+    name: "Reach Gateway OpenAPI",
+    domain: "reach-gateway.izeesub.workers.dev/openapi.json",
+    destinations: [
+      { type: "public", uri: "reach-gateway.izeesub.workers.dev/openapi.json" },
+    ],
+    type: "self_hosted",
+    session_duration: "24h",
+    app_launcher_visible: false,
+  });
   assert.equal(plan.ownerEmail, "owner@example.com");
   assert.equal(result.stdout.includes("owner@example.com"), false);
   assert.equal(result.stderr.includes("owner@example.com"), false);

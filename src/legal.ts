@@ -14,7 +14,7 @@ export function legalResponse(kind: keyof typeof TEXT): Response {
 }
 
 export function versionResponse(): Response {
-  return Response.json({ name: "reach-gateway", version: "0.1.0" });
+  return Response.json({ name: "reach-gateway", version: "0.2.0" });
 }
 
 export function healthzResponse(): Response {

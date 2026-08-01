@@ -1,12 +1,13 @@
 {
   "name": "reach-gateway",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "engines": {
     "node": ">=24.18.0"
   },
   "scripts": {
+    "actions:export": "node scripts/export-openapi.mjs",
     "build": "tsc --noEmit",
     "check": "npm run build && npm run lint && node --test test/prerequisites.test.mjs && npm test",
     "deploy": "wrangler deploy",

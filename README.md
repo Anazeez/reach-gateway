@@ -1,6 +1,6 @@
 # Reach Gateway
 
-Reach Gateway is an owner-authenticated, read-only MCP service for normalized public evidence. It runs on Cloudflare Workers, uses Cloudflare Access OAuth, and exposes the registered private app **Reach the G** to ChatGPT and Codex.
+Reach Gateway is an owner-authenticated, read-only service for normalized public evidence. It runs on Cloudflare Workers, uses Cloudflare Access OAuth, and exposes the registered private app **Reach the G** to ChatGPT and Codex through MCP and a Custom GPT Action facade.
 
 Discovery stays with the host assistant. Reach uses no paid search API and provides no private-account or write access.
 
@@ -13,6 +13,10 @@ Discovery stays with the host assistant. Reach uses no paid search API and provi
 | `transcript` | Retrieve available public captions for a supported YouTube URL. |
 
 Production MCP endpoint: `https://reach-gateway.izeesub.workers.dev/mcp`
+
+Custom GPT schema: `https://reach-gateway.izeesub.workers.dev/openapi.json`
+
+The Action bundle and exact GPT Builder instructions are under [`actions`](actions). Its operation IDs are `checkEvidenceChannels`, `readPublicUrl`, and `getPublicTranscript`; all three call the same retrieval core as MCP.
 
 ## Local verification
 

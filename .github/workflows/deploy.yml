@@ -99,7 +99,7 @@ jobs:
             --var "REACH_OAUTH_ISSUER:${issuer}" \
             --var "REACH_OAUTH_AUDIENCE:${audience}"
 
-      - name: Verify live health and OAuth boundary
+      - name: Verify live health, Action schema, and OAuth boundary
         shell: bash
         run: |
           set -euo pipefail
@@ -115,10 +115,22 @@ jobs:
             if (!value.code_challenge_methods_supported?.includes("S256")) process.exit(1);
             if (!value.registration_endpoint) process.exit(1);
           '
+          schema="$(curl --fail --silent --show-error "${REACH_ORIGIN}/openapi.json")"
+          SCHEMA="$schema" node --input-type=module -e '
+            const value = JSON.parse(process.env.SCHEMA);
+            const expected = ["/v1/reach/health", "/v1/reach/read", "/v1/reach/transcript"];
+            if (value.openapi !== "3.1.0" || value.info?.version !== "0.2.0") process.exit(1);
+            if (JSON.stringify(Object.keys(value.paths || {}).sort()) !== JSON.stringify(expected)) process.exit(1);
+            if (JSON.stringify(value).includes("REACH_OWNER_SUB")) process.exit(1);
+          '
           status="$(curl --silent --output "$RUNNER_TEMP/mcp-body" --write-out '%{http_code}' \
             -X POST "${REACH_ORIGIN}/mcp" -H 'content-type: application/json' \
             --data '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"reach-live-smoke","version":"1.0"}}}')"
           test "$status" = "401"
+          action_status="$(curl --silent --output "$RUNNER_TEMP/action-body" --write-out '%{http_code}' \
+            -X POST "${REACH_ORIGIN}/v1/reach/read" -H 'content-type: application/json' \
+            --data 'not-json')"
+          test "$action_status" = "401"
 
       - name: Capture immutable deployment evidence
         run: |

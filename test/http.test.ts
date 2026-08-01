@@ -52,6 +52,40 @@ describe("Worker HTTP surface", () => {
     );
   });
 
+  it("serves the public Action schema without exposing owner identity", async () => {
+    const response = await worker.fetch(
+      new Request("https://reach-gateway.example.com/openapi.json"),
+      fixtureEnv,
+      context,
+    );
+    const text = await response.text();
+    const schema = JSON.parse(text);
+
+    expect(response.status).toBe(200);
+    expect(Object.keys(schema.paths).sort()).toEqual([
+      "/v1/reach/health",
+      "/v1/reach/read",
+      "/v1/reach/transcript",
+    ]);
+    expect(text).not.toContain("owner-123");
+  });
+
+  it("challenges unauthenticated Action requests before parsing", async () => {
+    const response = await worker.fetch(
+      new Request("https://reach-gateway.example.com/v1/reach/read", {
+        method: "POST",
+        body: "not-json",
+      }),
+      fixtureEnv,
+      context,
+    );
+
+    expect(response.status).toBe(401);
+    expect(response.headers.get("www-authenticate")).toContain(
+      "/.well-known/oauth-protected-resource",
+    );
+  });
+
   it("records a correlation-safe reason when Access authentication is rejected", async () => {
     const warning = vi.spyOn(console, "warn").mockImplementation(() => undefined);
 

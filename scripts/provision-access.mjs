@@ -7,6 +7,7 @@ const API = "https://api.cloudflare.com/client/v4";
 const SOURCE_APP_NAME = "The Essentials MCP";
 const APP_NAME = "Reach Gateway";
 const HEALTH_APP_NAME = "Reach Gateway Health";
+const SCHEMA_APP_NAME = "Reach Gateway OpenAPI";
 const DOMAIN = "reach-gateway.izeesub.workers.dev";
 
 function ownerEmail(policies) {
@@ -54,7 +55,19 @@ function plan(sourceApp, sourcePolicies) {
   return {
     app: applicationBody(sourceApp),
     policy: policyBody(sourcePolicies),
+    schemaApp: bypassApplicationBody(SCHEMA_APP_NAME, "/openapi.json"),
     ownerEmail: ownerEmail(sourcePolicies),
+  };
+}
+
+function bypassApplicationBody(name, pathname) {
+  return {
+    name,
+    domain: `${DOMAIN}${pathname}`,
+    destinations: [{ type: "public", uri: `${DOMAIN}${pathname}` }],
+    type: "self_hosted",
+    session_duration: "24h",
+    app_launcher_visible: false,
   };
 }
 
@@ -121,6 +134,25 @@ async function provision(outputDirectory) {
     desired.policy,
   );
 
+  const existingSchema = apps.find((candidate) => candidate.name === SCHEMA_APP_NAME);
+  const schemaApp = await upsertApplication(accountId, existingSchema, desired.schemaApp);
+  const schemaPolicies = existingSchema
+    ? await cloudflare(`/accounts/${accountId}/access/apps/${schemaApp.id}/policies?per_page=100`)
+    : [];
+  await upsertPolicy(
+    accountId,
+    schemaApp.id,
+    schemaPolicies.find((policy) => policy.name === "Public OpenAPI schema"),
+    {
+      name: "Public OpenAPI schema",
+      decision: "bypass",
+      include: [{ everyone: {} }],
+      require: [],
+      exclude: [],
+      precedence: 1,
+    },
+  );
+
   const healthBody = {
     name: HEALTH_APP_NAME,
     domain: `${DOMAIN}/healthz`,
@@ -166,6 +198,7 @@ async function provision(outputDirectory) {
       audience: app.aud,
       appId: app.id,
       healthAppId: healthApp.id,
+      schemaAppId: schemaApp.id,
     }),
     { mode: 0o600 },
   );
