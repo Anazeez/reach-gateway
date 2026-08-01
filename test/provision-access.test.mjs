@@ -51,7 +51,11 @@ test("plans an owner-private Managed OAuth application without exposing the owne
     enabled: true,
     dynamic_client_registration: {
       enabled: true,
-      allowed_uris: ["https://chatgpt.com/connector/oauth/*"],
+      allowed_uris: [
+        "https://chatgpt.com/connector/oauth/*",
+        "https://chat.openai.com/aip/*/oauth/callback",
+        "https://chatgpt.com/aip/*/oauth/callback",
+      ],
     },
   });
   assert.equal(plan.policy.name, "Reach owner access");
