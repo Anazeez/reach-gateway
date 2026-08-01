@@ -87,9 +87,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          npx wrangler secret put REACH_OWNER_SUB < "$RUNNER_TEMP/reach-access/owner-email"
           issuer="$(node -p 'JSON.parse(require("fs").readFileSync(process.argv[1], "utf8")).issuer' "$RUNNER_TEMP/reach-access/deployment.json")"
           audience="$(node -p 'JSON.parse(require("fs").readFileSync(process.argv[1], "utf8")).audience' "$RUNNER_TEMP/reach-access/deployment.json")"
+          npx wrangler deploy \
+            --var "REACH_PUBLIC_ORIGIN:${REACH_ORIGIN}" \
+            --var "REACH_OAUTH_ISSUER:${issuer}" \
+            --var "REACH_OAUTH_AUDIENCE:${audience}"
+          npx wrangler secret put REACH_OWNER_SUB < "$RUNNER_TEMP/reach-access/owner-email"
           npx wrangler deploy \
             --var "REACH_PUBLIC_ORIGIN:${REACH_ORIGIN}" \
             --var "REACH_OAUTH_ISSUER:${issuer}" \
