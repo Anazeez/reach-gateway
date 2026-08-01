@@ -40,6 +40,11 @@ async function handle(request: Request, env: Env, context: ExecutionContext): Pr
     await verifyOwner(request, config);
   } catch (error) {
     if (error instanceof AuthError) {
+      console.warn({
+        event: "reach_auth_rejected",
+        reasonCode: error.reasonCode,
+        rayId: request.headers.get("cf-ray"),
+      });
       return Response.json(
         { error: "unauthorized" },
         { status: error.httpStatus, headers: error.headers },

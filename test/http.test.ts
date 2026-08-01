@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import worker from "../src/index";
 
@@ -51,6 +51,37 @@ describe("Worker HTTP surface", () => {
     expect(response.headers.get("www-authenticate")).toContain(
       "/.well-known/oauth-protected-resource",
     );
+  });
+
+  it("records a correlation-safe reason when Access authentication is rejected", async () => {
+    const warning = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+
+    try {
+      const response = await worker.fetch(
+        new Request("https://reach-gateway.example.com/mcp", {
+          method: "POST",
+          headers: {
+            "cf-access-jwt-assertion": "sensitive-token-material",
+            "cf-ray": "diagnostic-ray",
+          },
+          body: "not-json",
+        }),
+        fixtureEnv,
+        context,
+      );
+
+      expect(response.status).toBe(401);
+      expect(warning).toHaveBeenCalledOnce();
+      expect(warning).toHaveBeenCalledWith({
+        event: "reach_auth_rejected",
+        reasonCode: "AUTH_TOKEN_INVALID",
+        rayId: "diagnostic-ray",
+      });
+      expect(JSON.stringify(warning.mock.calls)).not.toContain("sensitive-token-material");
+      expect(JSON.stringify(warning.mock.calls)).not.toContain(fixtureEnv.REACH_OWNER_SUB);
+    } finally {
+      warning.mockRestore();
+    }
   });
 
   it.each(["/healthz", "/version", "/privacy", "/terms", "/support"])(
