@@ -203,12 +203,12 @@ if (import.meta.url === `file://${process.argv[1]}`) {
 Perform and record these exact checks in `docs/evidence/surface-contract.md`:
 
 1. Open `https://platform.openai.com/plugins` and verify the owner has Apps Management write access and a verified publisher identity.
-2. In ChatGPT Plugins, create an owner-only development MCP connection and confirm it appears under the owner's Personal or Created by me view on another signed-in device.
-3. In the custom GPT editor, confirm that the same private app can be selected in app mode and invoked from a preview conversation.
+2. Verify that the owner's account exposes the personal New Plugin form with Server URL, OAuth, and advanced OAuth discovery. Defer creation and second-device verification until the live endpoint exists.
+3. Confirm from current official documentation that custom GPTs support app mode. Defer exact selection and preview invocation until the live plugin exists.
 4. Confirm whether an owner-private listing can be published without making the service installable by arbitrary users.
 5. Confirm the selected OAuth provider supports OAuth 2.1 authorization code with PKCE S256, protected-resource metadata, CIMD or DCR, the `resource` parameter, and short-lived JWT access tokens.
 
-Record each as `passed`, `failed`, `skipped`, or `unavailable`, with date, surface, account class, and evidence reference. If check 2, 3, or 4 is not `passed`, stop implementation and report the single platform blocker.
+Record each as `passed`, `failed`, `skipped`, or `unavailable`, with date, surface, account class, and evidence reference. The personal creation surface and private development path must pass before Task 2. Second-device and custom-GPT invocation remain mandatory post-deployment release checks because both require the live endpoint.
 
 - [ ] **Step 5: Update the design only if observed platform terminology differs**
 

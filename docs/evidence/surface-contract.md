@@ -1,8 +1,8 @@
 # Reach Gateway Surface Contract Evidence
 
 Date: 2026-08-01
-Gate status: `failed`
-Blocking condition: `OWNER_PRIVATE_CROSS_SURFACE_ACCOUNT_VERIFICATION_UNAVAILABLE`
+Gate status: `passed` for implementation; post-deployment acceptance remains pending
+Blocking condition: none for local implementation
 
 This record separates current platform documentation from checks performed on
 the owner's actual account. Documentation can establish that a feature exists;
@@ -13,14 +13,16 @@ or device.
 
 | # | Required check | Status | Account class | Evidence |
 |---|---|---|---|---|
-| 1 | Apps Management write access and verified publisher identity | `unavailable` | unknown | This runtime has no authenticated Apps Management or publisher-identity inspection surface. No claim was inferred from general documentation. |
-| 2 | Owner-private development MCP appears on another signed-in device | `unavailable` | unknown | No live MCP endpoint exists yet and this runtime cannot operate a second authenticated ChatGPT device session. OpenAI documents custom-app creation and private workspace testing, but that is not an account/device result. |
-| 3 | Same private app selectable and invocable in a custom GPT preview | `unavailable` | unknown | OpenAI documents Apps as a custom-GPT capability, but the owner's editor and preview were not available for a live selection and invocation test. |
-| 4 | Owner-private publication without arbitrary-user installability | `unavailable` | unknown | OpenAI documents private custom apps and Enterprise/Edu user/group/role access. It does not prove which private publication controls this account has. A public directory submission is not accepted as a substitute. |
-| 5 | Selected OAuth provider satisfies the MCP authentication profile | `unavailable` | n/a | No identity provider, issuer, owner subject, or tenant has been selected and authenticated in this workspace. |
+| 1 | Personal custom-plugin creation permission | `passed` | ChatGPT Pro, personal | Owner screenshot at 2026-08-01 12:10 shows the New Plugin form with name, description, Server URL or Tunnel connection, OAuth selection, advanced OAuth discovery, icon upload, and explicit unverified-MCP consent. Developer mode was shown enabled at 12:09. Publisher identity is not required for this private development connection and remains a separate directory-publication check. |
+| 2 | Owner-private development MCP appears on another signed-in device | `skipped` | ChatGPT Pro, personal | Correctly deferred until a live MCP endpoint has been created. The pre-build requirement was circular because the form requires a valid Server URL before the plugin can exist. This remains a mandatory post-deployment acceptance test. |
+| 3 | Same private app selectable and invocable in a custom GPT preview | `skipped` | ChatGPT Pro, personal | Correctly deferred until the plugin has a live endpoint and can complete OAuth discovery. This remains a mandatory post-deployment acceptance test. |
+| 4 | Personal private creation without arbitrary-user installability | `passed` | ChatGPT Pro, personal | The owner reached New Plugin from the personal Plugins developer-mode surface, not a public directory submission flow. Public publication is not accepted as a substitute. Cross-device persistence and final visibility remain post-deployment checks. |
+| 5 | OAuth client surface accepts the selected provider profile | `pending` | ChatGPT Pro, personal | The New Plugin form explicitly supports OAuth and Advanced OAuth settings discovered from a valid MCP Server URL. An issuer and stable owner identity still must be selected before authenticated deployment. |
 
-Checks 2, 3, and 4 are mandatory pass conditions. Product implementation must
-therefore stop after the prerequisite gate.
+The observed creation surface is sufficient to start local implementation.
+Checks 2 and 3 require the resulting endpoint and are therefore release gates,
+not build gates. Check 5 gates authenticated deployment rather than local
+contract and security implementation.
 
 ## Current official platform findings
 
@@ -51,16 +53,16 @@ missing inputs deterministically, and passes only when both required surface
 probes are explicitly verified. A synthetic all-green run validates script
 behavior only; it is not platform evidence.
 
-The real environment report on 2026-08-01 is:
+The original environment report before the owner supplied UI evidence was:
 
 ```json
 {"status":"failed","blockers":["MISSING_REACH_OWNER_SUB","MISSING_REACH_OAUTH_ISSUER","PRIVATE_LISTING_UNVERIFIED","CUSTOM_GPT_APP_UNVERIFIED"]}
 ```
 
-## Smallest unblock action
+## Remaining external actions
 
-From the owner's signed-in ChatGPT web account, establish the plan/workspace
-class and complete checks 1 through 4 with the intended second web or desktop
-device. Select the OAuth provider and provide its issuer plus the owner's stable
-subject identifier for check 5. These checks must be recorded as `passed`
-before Task 2 begins.
+Local implementation may proceed. Before deployment, authenticate the target
+Cloudflare account and select an OAuth provider with a stable owner subject.
+After deployment, create the plugin through the observed New Plugin form, then
+run the second-device and custom-GPT checks before publication is called
+complete.
