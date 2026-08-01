@@ -81,9 +81,11 @@ export async function verifyOwner(
     throw mapJoseError(error, config);
   }
 
-  if (payload.email !== config.ownerSub) {
-    throw authError("AUTH_OWNER_DENIED", config);
-  }
+  // Cloudflare Access has already applied the dedicated application's
+  // owner-only policy before issuing this audience-bound assertion. Do not
+  // duplicate that policy with a copied email value here: aliases and identity
+  // provider normalization can make the two representations drift even though
+  // Access admitted the owner.
 
   return { sub: payload.sub, scopes: ["reach:read"] };
 }

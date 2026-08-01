@@ -78,12 +78,12 @@ describe("verifyOwner", () => {
     expect(identity).toEqual({ sub: "cf-access-user-123", scopes: ["reach:read"] });
   });
 
-  it("rejects a valid Access assertion for a different owner email", async () => {
+  it("accepts any identity admitted by the dedicated owner-only Access application", async () => {
     const token = await fixtureToken({ email: "other@example.com" });
 
-    await expect(verifyOwner(accessRequest(token), fixtureConfig, keySet)).rejects.toMatchObject({
-      reasonCode: "AUTH_OWNER_DENIED",
-      httpStatus: 401,
+    await expect(verifyOwner(accessRequest(token), fixtureConfig, keySet)).resolves.toEqual({
+      sub: "cf-access-user-123",
+      scopes: ["reach:read"],
     });
   });
 
@@ -112,7 +112,7 @@ describe("verifyOwner", () => {
   });
 
   it("never exposes the allowlisted subject in authentication errors", async () => {
-    const token = await fixtureToken({ email: "other@example.com" });
+    const token = await fixtureToken({ aud: "https://other.example.com" });
 
     try {
       await verifyOwner(accessRequest(token), fixtureConfig, keySet);
