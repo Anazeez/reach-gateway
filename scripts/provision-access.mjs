@@ -10,8 +10,8 @@ const HEALTH_APP_NAME = "Reach Gateway Health";
 const SCHEMA_APP_NAME = "Reach Gateway OpenAPI";
 const DOMAIN = "reach-gateway.izeesub.workers.dev";
 const CUSTOM_GPT_REDIRECT_PATTERNS = [
-  "https://chat.openai.com/aip/*/oauth/callback",
-  "https://chatgpt.com/aip/*/oauth/callback",
+  "https://chat.openai.com/aip/*",
+  "https://chatgpt.com/aip/*",
 ];
 
 function ownerEmail(policies) {

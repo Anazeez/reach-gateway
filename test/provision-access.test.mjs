@@ -53,8 +53,8 @@ test("plans an owner-private Managed OAuth application without exposing the owne
       enabled: true,
       allowed_uris: [
         "https://chatgpt.com/connector/oauth/*",
-        "https://chat.openai.com/aip/*/oauth/callback",
-        "https://chatgpt.com/aip/*/oauth/callback",
+        "https://chat.openai.com/aip/*",
+        "https://chatgpt.com/aip/*",
       ],
     },
   });
