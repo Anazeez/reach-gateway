@@ -13,7 +13,7 @@ or device.
 
 | # | Required check | Status | Account class | Evidence |
 |---|---|---|---|---|
-| 1 | Personal custom-plugin creation permission | `passed` | ChatGPT Pro, personal | Owner screenshot at 2026-08-01 12:10 shows the New Plugin form with name, description, Server URL or Tunnel connection, OAuth selection, advanced OAuth discovery, icon upload, and explicit unverified-MCP consent. Developer mode was shown enabled at 12:09. Publisher identity is not required for this private development connection and remains a separate directory-publication check. |
+| 1 | Personal custom-plugin creation permission and publisher precedent | `passed` | ChatGPT Pro, personal | Owner screenshot at 2026-08-01 12:10 shows the New Plugin form with name, description, Server URL or Tunnel connection, OAuth selection, advanced OAuth discovery, icon upload, and explicit unverified-MCP consent. Developer mode was shown enabled at 12:09. The already installed Mnemosyne Shared Memory listing records `publisher_identity: individual-verified`, providing an account-level publication precedent without treating Reach as published. |
 | 2 | Owner-private development MCP appears on another signed-in device | `skipped` | ChatGPT Pro, personal | Correctly deferred until a live MCP endpoint has been created. The pre-build requirement was circular because the form requires a valid Server URL before the plugin can exist. This remains a mandatory post-deployment acceptance test. |
 | 3 | Same private app selectable and invocable in a custom GPT preview | `skipped` | ChatGPT Pro, personal | Correctly deferred until the plugin has a live endpoint and can complete OAuth discovery. This remains a mandatory post-deployment acceptance test. |
 | 4 | Personal private creation without arbitrary-user installability | `passed` | ChatGPT Pro, personal | The owner reached New Plugin from the personal Plugins developer-mode surface, not a public directory submission flow. Public publication is not accepted as a substitute. Cross-device persistence and final visibility remain post-deployment checks. |
@@ -39,6 +39,10 @@ contract and security implementation.
   Actions, not both simultaneously.
 - Custom MCP apps are documented as web-only. Mobile is not currently a
   supported cross-device target for this release.
+- The owner's existing Mnemosyne plugin uses a live OAuth 2.1 authorization
+  server with authorization code, refresh tokens, S256 PKCE, and dynamic client
+  registration, backed by GitHub identity. Reach may reuse that reviewed pattern
+  but must use its own scopes, audience, deployment, credentials, and authority.
 
 Sources:
 

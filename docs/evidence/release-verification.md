@@ -2,7 +2,7 @@
 
 Date: 2026-08-01
 Status: `unavailable`
-Current blocker: Cloudflare authentication and production OAuth/provider secrets
+Current blocker: production credential provisioning for Cloudflare, OAuth, and Brave Search
 
 ## Local candidate
 
@@ -13,6 +13,8 @@ Current blocker: Cloudflare authentication and production OAuth/provider secrets
 - Live source suite: `skipped`; a skipped suite does not certify release
 - Plugin publication: `unavailable`; no verified production MCP URL exists yet
 - Global skill installation: not started; it must reference the verified production MCP
+- Existing auth precedent: Mnemosyne proves this owner can connect a GitHub-backed
+  OAuth 2.1 MCP, but its memory scopes and credentials are not reused by Reach
 
 ## Required deployment evidence
 
