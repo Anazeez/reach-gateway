@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import { redact } from "../src/security/redact";
 import { safeFetch } from "../src/security/safe-fetch";
 import { asUntrustedEvidence } from "../src/security/untrusted-content";
-import { validatePublicUrl, type DnsResolver } from "../src/security/url-policy";
+import { dohResolver, validatePublicUrl, type DnsResolver } from "../src/security/url-policy";
 
 const fixtureResolver: DnsResolver = async (hostname) => {
   const fixtures: Record<string, string[]> = {
@@ -15,6 +15,30 @@ const fixtureResolver: DnsResolver = async (hostname) => {
 };
 
 describe("validatePublicUrl", () => {
+  it("resolves through DNS-over-HTTPS with redirect handling supported by Workers", async () => {
+    vi.stubGlobal("fetch", async (input: string | URL | Request, init?: RequestInit) => {
+      if (init?.redirect === "error") {
+        throw new TypeError(
+          'Invalid redirect value, must be one of "follow" or "manual"',
+        );
+      }
+      const endpoint = new URL(input instanceof Request ? input.url : input.toString());
+      return Response.json({
+        Status: 0,
+        Answer:
+          endpoint.searchParams.get("type") === "A"
+            ? [{ name: "public.example", type: 1, TTL: 300, data: "93.184.216.34" }]
+            : [],
+      });
+    });
+
+    try {
+      await expect(dohResolver("public.example")).resolves.toEqual(["93.184.216.34"]);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
   it.each([
     "http://127.0.0.1/admin",
     "https://169.254.169.254/latest/meta-data",

@@ -38,7 +38,7 @@ export async function dohResolver(hostname: string): Promise<string[]> {
     endpoint.searchParams.set("type", type);
     const response = await fetch(endpoint, {
       headers: { accept: "application/dns-json" },
-      redirect: "error",
+      redirect: "manual",
     });
     if (!response.ok) continue;
     const body = (await response.json()) as { Answer?: Array<{ type: number; data: string }> };
