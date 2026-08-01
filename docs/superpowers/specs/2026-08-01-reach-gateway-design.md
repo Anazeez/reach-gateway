@@ -1,7 +1,7 @@
 # Reach Gateway Design
 
 Date: 2026-08-01
-Status: Approved; implementation gated on live surface verification
+Status: Approved and implemented; final native-app and custom-GPT checks pending
 Owner: User
 Working product name: Reach Gateway
 
@@ -14,8 +14,8 @@ unreliable. It is a private, owner-authenticated, read-only remote MCP service.
 The product does not replace OpenAI web search, the GitHub connector, or other
 strong native integrations. It fills the verified gaps: deterministic URL
 reading, X post retrieval, video transcripts, RSS/Atom parsing, public Reddit
-retrieval, source-directed search, ordered fallback routing, and channel health
-diagnosis.
+retrieval, ordered fallback routing, and channel health diagnosis. Source
+discovery remains native to ChatGPT or Codex.
 
 Success means the same bounded tools can be invoked from every supported target
 surface, return normalized provenance, fail visibly, and never gain authority
@@ -46,6 +46,7 @@ Version 1 explicitly excludes:
 - general browser automation;
 - persistent research memory or content indexing;
 - background monitoring and scheduled research;
+- general or source-directed search and paid search APIs;
 - a public multi-user service;
 - claims of universal website coverage.
 
@@ -80,7 +81,7 @@ Codex / ChatGPT / custom GPT
              |
        Reach Gateway plugin
        - routing skill
-       - remote MCP declaration
+       - registered private app mapping
              |
       owner authentication
       - delegated identity provider
@@ -256,19 +257,16 @@ The completed product consists of:
 1. The stateless remote MCP service.
 2. A focused routing skill explaining native-tool preference, tool selection,
    provenance requirements, and failure semantics.
-3. A plugin manifest declaring the skill and MCP capability.
+3. A plugin manifest declaring the skill and existing registered app identity.
 4. Icons, metadata, privacy information, authentication configuration, and
    declared dependencies required by the target directory.
 5. Operational health, disable, rollback, and version-identification surfaces.
 
-The plugin is intended for the current OpenAI Plugin Directory and must remain
-owner-private through the applicable Personal, Created by me, or private
-workspace publication path. It is not a public multi-user listing. The web
-interface is the authoring and connection surface, not the boundary of plugin
-use. After the owner installs and connects the plugin, eligible ChatGPT and
-Codex native surfaces signed into that account are expected to inherit it from
-the Plugin Directory. No native or mobile surface is excluded in advance.
-Surface availability will still be reported only after inherited discovery,
+The plugin remains owner-private through the Personal or Created by me account
+surface and the personal Codex marketplace. It is not a public multi-user
+listing. The web interface is the ChatGPT authoring and connection surface, not
+the boundary of plugin use. Eligible native surfaces signed into that account
+may inherit the connection, but support is reported only after discovery,
 invocation, and authentication are tested on that exact surface and account.
 
 The Codex skill is not considered installed until the final package is
@@ -341,14 +339,15 @@ is not described as supported.
 Version 1 is complete only when:
 
 1. The private remote MCP enforces owner identity and read-only authority.
-2. All four tools satisfy their contract and security tests.
+2. All three tools satisfy their contract and security tests.
 3. At least web reading, individual X URL reading, caption extraction, public
    Reddit retrieval, and RSS parsing have one verified live path or an explicit
    documented `unavailable` boundary accepted before release.
 4. Fallback and health behavior is deterministic and evidence-backed.
 5. The plugin bundle is complete and validated.
-6. The plugin is published to the intended owner-private Plugin Directory
-   location and has a durable listing reference.
+6. The app is connected in the owner's personal ChatGPT account and the plugin
+   is installed from the personal Codex marketplace using the same registered
+   app identity.
 7. The global Codex skill is installed and validated at the canonical path.
 8. Fresh supported Codex, ChatGPT, and custom-GPT checks prove installation,
    discovery, authentication, and invocation.
@@ -370,11 +369,11 @@ Implementation will follow one bounded path:
 3. Implement and live-test adapters one at a time.
 4. Package the routing skill and cross-surface plugin.
 5. Deploy behind owner authentication and run security checks.
-6. Publish privately and verify every supported surface from fresh sessions.
+6. Install privately and verify every supported surface from fresh sessions.
 7. Install and validate the global Codex skill.
 8. Record version, health, disable, uninstall, and rollback evidence.
 
 The implementation must stop if the selected authentication path cannot be
-verified across the intended surfaces, an adapter requires cookies or private
-credentials, publication authority is unavailable, or satisfying acceptance
-would materially widen version 1.
+verified, an adapter requires cookies or private credentials, or satisfying
+acceptance would materially widen version 1. An unverified optional surface is
+reported as unsupported until its exact check passes.

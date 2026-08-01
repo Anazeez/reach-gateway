@@ -1,51 +1,64 @@
 # Reach Gateway Release Verification
 
 Date: 2026-08-01
-Deployment status: `passed`
-Connection status: `passed`
-Current blocker: universal directory publication and cross-surface discovery
-have not yet been verified
+Private deployment status: `passed`
+Private ChatGPT web connection: `passed`
+Personal Codex plugin installation: `passed`
+Universal public directory publication: `unavailable` by approved owner-private design
+Remaining acceptance blocker: exact native ChatGPT-app and custom-GPT invocation have not yet been observed
 
-## Local candidate
+## Reviewed runtime and package
 
 - Source repository: `https://github.com/Anazeez/reach-gateway`
-- Reviewed source commit: `010835e49fbc79a92e2bf06006e7a6286dd9e903`
-- `package-lock.json` SHA-256:
-  `6a917802a8cd6d1a1093d1442101447dee9216eadf5f7f8427a456636217979b`
-- Build, lint, unit, contract, and policy tests: `passed`; 44 tests passed and
-  five credentialed live-source tests were skipped by design
-- Secret scan: `passed`; 59 files inspected
-- Production bundle: `passed` with Wrangler 4.118.0 dry-run
-- Deployment: `passed` at 2026-08-01T11:29:27Z
+- Deployed runtime commit: `643ad53fbfb977f0231aa0b9fa21d2dabd8dbc3c`
+- Private plugin package commit: `77c0a53f50e8ca88b74548fa05bfeb1400c55362`
+- Plugin version: `0.1.0`
+- Registered app ID: `asdk_app_6a6e0220efcc819199465b25290785bf`
+- Canonical global skill: `/home/ubuntu/.codex/skills/reach-gateway`
+- Installed plugin cache: `/home/ubuntu/.codex/plugins/cache/personal/reach-gateway/0.1.0`
+- `package-lock.json` SHA-256: `6a917802a8cd6d1a1093d1442101447dee9216eadf5f7f8427a456636217979b`
+
+## Deterministic verification
+
+- Build and lint: `passed`.
+- Publication-gate tests: `passed`; 3 of 3.
+- Unit and contract tests: `passed`; 45 passed and 5 credentialed live-source tests skipped.
+- Secret scan: `passed`; 68 files inspected.
+- Wrangler 4.118.0 production dry-run: `passed`.
+- Canonical installed-skill validation: `passed`.
+- Repository plugin validation: `passed`.
+- Personal source-plugin validation: `passed`.
+- Immutable installed-cache validation: `passed`.
+- Package test catalog: `passed`; 8 positive and refusal cases parse as valid JSON.
+- Fresh Codex skill discovery: `passed`; a clean ephemeral invocation selected `reach-gateway` by exact name.
+- Fresh Codex app invocation: `passed`; `codex_apps/reach_the_g.health` returned overall `passed` and `passed` for Web, X, YouTube, Reddit, and RSS at 2026-08-01T20:27Z.
+
+## Deployment and authentication
+
 - Production MCP URL: `https://reach-gateway.izeesub.workers.dev/mcp`
 - Public health URL: `https://reach-gateway.izeesub.workers.dev/healthz`
-- Cloudflare Worker version: `bfb5af04-2a9d-4dd9-ae26-b67779565396`
-- Pre-secret transition version: `b2380611-d393-4849-b1a1-c9c0ff978557`
-- Deployment workflow: `passed` in
-  `https://github.com/Anazeez/auralis/actions/runs/30697755950`
-- OAuth issuer: `https://noisy-pond-95ae.cloudflareaccess.com`
-- OAuth profile: Cloudflare Access Managed OAuth with dynamic client
-  registration and PKCE S256; the audience is bound to the Access application
-  and was injected without logging its value
-- Owner identity: stored as an encrypted Worker secret and enforced by an
-  exact-email Cloudflare Access policy; its value is not recorded here
-- Live health and OAuth boundary: `passed`; `/healthz` returned the expected
-  service status, OAuth discovery exposed the issuer, registration endpoint,
-  and S256, and unauthenticated `/mcp` returned `401` with protected-resource
-  metadata
-- Authenticated MCP invocation: `passed`; the owner completed Cloudflare Access
-  OAuth and invoked `read` through ChatGPT web.
-- Zero-paid boundary: `passed`; Reach exposes direct read, transcript, and
-  health capabilities without a paid search API. Discovery belongs to the host
-  ChatGPT or Codex surface.
-- Private ChatGPT web connection: `passed`.
-- Cross-device inheritance: `skipped`; it requires web installation and
-  connection first, followed by discovery, invocation, and OAuth checks on each
-  intended native ChatGPT and Codex surface
-- Custom GPT selection and invocation: `skipped` until connection
+- Deployment workflow: `passed` at `https://github.com/Anazeez/auralis/actions/runs/30712497532`.
+- Workflow source pin: `643ad53fbfb977f0231aa0b9fa21d2dabd8dbc3c`.
+- Current Cloudflare Worker version ID after owner-secret injection: `b7e344d1-b0f2-44c2-99ea-58ba8c57d950`.
+- OAuth issuer: `https://noisy-pond-95ae.cloudflareaccess.com`.
+- OAuth discovery and protected-resource metadata: `passed`; both returned HTTP 200.
+- Public `/healthz`: `passed`; HTTP 200.
+- Unauthenticated `/mcp`, `/version`, `/privacy`, `/terms`, and `/support`: `passed` fail-closed behavior; HTTP 401.
+- Owner identity is held only in encrypted deployment configuration and an exact-owner Cloudflare Access policy; its value is not recorded here.
 
-## Required deployment evidence
+## Product-surface verification
 
-The remaining acceptance evidence is an authenticated MCP initialization and
-tool call, followed by directory inheritance and invocation on each intended
-native ChatGPT and Codex surface and in a custom GPT preview.
+- ChatGPT web creation and OAuth connection: `passed` on the owner's personal Pro account.
+- ChatGPT web authenticated `read`: `passed`; `https://example.com/` returned `status=passed`, `backend=web-readability@1`, no warnings, and no reason code.
+- ChatGPT web authenticated `health`: `passed` for Web, X, YouTube, Reddit, and RSS.
+- ChatGPT action inventory: `passed`; exactly `health`, `read`, and `transcript` are exposed. Paid search and the former `search` action are absent.
+- Codex personal catalog installation and invocation: `passed`.
+- Native ChatGPT app inheritance and invocation: `skipped`; no exact native-app invocation evidence has been supplied yet.
+- Custom GPT selection and invocation: `skipped`; no exact GPT-preview invocation evidence has been supplied yet.
+- Public multi-user directory submission: `unavailable` by approved design. The public review path requires reusable reviewer access that conflicts with exact-owner OTP/MFA protection, so it is not an accepted release route.
+
+## Release boundary
+
+Reach is owner-private, read-only, stateless retrieval. Native ChatGPT or Codex browsing performs discovery; Reach reads one public HTTPS URL, retrieves available public YouTube captions, or reports channel health. It accepts no cookies, account credentials, paid search keys, writes, or private-account authority.
+
+The deployment, ChatGPT web connection, global skill, personal plugin, and Codex invocation are complete. Final cross-surface acceptance still requires one native ChatGPT-app invocation and one custom-GPT preview invocation on the owner's account.

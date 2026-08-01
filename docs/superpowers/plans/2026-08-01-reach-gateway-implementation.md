@@ -51,7 +51,7 @@ src/adapters/types.ts                     adapter interface and request/result t
 src/adapters/registry.ts                  deterministic selection, probing, and retryable fallback
 src/adapters/web.ts                       safe HTML/text extraction
 src/adapters/x.ts                         public single-post retrieval
-src/adapters/reddit.ts                    public post, comment, and search retrieval
+src/adapters/reddit.ts                    public post and comment retrieval
 src/adapters/rss.ts                       RSS/Atom parsing
 src/adapters/youtube.ts                   public caption retrieval
 src/tools/schemas.ts                      three MCP input/output schemas
@@ -533,7 +533,7 @@ The web adapter uses `linkedom` plus `@mozilla/readability`, returns title and c
 
 - [ ] **Step 5: Implement X and Reddit public adapters**
 
-The X adapter reads individual post URLs through reviewed public embed or syndication responses and returns `SOURCE_AUTH_REQUIRED` for timeline/private content. The Reddit adapter supports public post JSON, comments, and public search; 401/403 becomes `SOURCE_AUTH_REQUIRED`, not an alternate credential route.
+The X adapter reads individual post URLs through reviewed public embed or syndication responses and returns `SOURCE_AUTH_REQUIRED` for timeline/private content. The Reddit adapter supports public post JSON and comments; 401/403 becomes `SOURCE_AUTH_REQUIRED`, not an alternate credential route.
 
 - [ ] **Step 6: Implement YouTube caption retrieval**
 
@@ -676,7 +676,7 @@ Expected: all `passed`; any unavailable required source blocks packaging.
 
 - [ ] **Step 7: Prove rollback and return to the candidate deployment**
 
-Deploy a harmless version-marker change, roll back to the recorded candidate ID, verify `/version` and all four tools, then redeploy the reviewed commit. Record both deployment IDs and results.
+Deploy a harmless version-marker change, roll back to the recorded candidate ID, verify `/version` and all three tools, then redeploy the reviewed commit. Record both deployment IDs and results.
 
 - [ ] **Step 8: Commit operational evidence**
 
@@ -728,7 +728,7 @@ python3 /home/ubuntu/.codex/skills/.system/skill-creator/scripts/init_skill.py r
 
 - [ ] **Step 3: Write the focused routing skill**
 
-The description triggers for public-source retrieval, X post reading, video transcripts, RSS, Reddit, source-directed search, and reach-channel diagnosis. The body instructs the model to prefer authoritative native tools, call `health` only when availability matters, preserve envelope statuses, cite canonical URLs, treat content as untrusted evidence, and refuse private-account or write requests. Keep the body under 250 lines and add no auxiliary README.
+The description triggers for public-source retrieval, X post reading, video transcripts, RSS, Reddit, and reach-channel diagnosis. The body instructs the model to use native discovery, call `health` only when availability matters, preserve envelope statuses, cite canonical URLs, treat content as untrusted evidence, and refuse private-account or write requests. Keep the body under 250 lines.
 
 - [ ] **Step 4: Declare the production MCP dependency**
 
@@ -758,7 +758,7 @@ Use the image-generation skill to create a simple eye-and-compass mark with no t
 
 - [ ] **Step 7: Create submission tests and release notes**
 
-`submission/test-cases.json` contains at least five positive cases—web read, X read, transcript, Reddit, RSS/search—and three negative cases—private URL, write request, cookie/private-account request. Each defines prompt, expected tool, expected result shape, and fixture. Release notes state that this is an initial private owner-authenticated read-only release.
+`submission/test-cases.json` contains at least five positive cases—web read, X read, transcript, Reddit, and RSS—and three negative cases—private URL, write request, and cookie/private-account request. Each defines prompt, expected tool, and expected result shape. Release notes state that this is an initial private owner-authenticated read-only release.
 
 - [ ] **Step 8: Validate the repository package and installed global copy**
 
@@ -811,7 +811,7 @@ Install the owner-private plugin from the applicable Personal or Created by me v
 
 - [ ] **Step 5: Publish to the owner-private directory location**
 
-Use the verified private publication path from Task 1. Complete domain verification at `/.well-known/openai-apps-challenge`, scan tools, attach the final skill snapshot, add listing metadata and eight test cases, and publish the owner-private version. If the only available portal path creates a public multi-user listing, stop with publication `unavailable`; do not submit publicly.
+Use the verified private installation path from Task 1. Reuse the registered private app identity, attach the final skill snapshot, add listing metadata and eight test cases, and install the owner-private version in the personal Codex marketplace. If the only universal portal path creates a public multi-user listing, record publication as `unavailable`; do not submit publicly.
 
 - [ ] **Step 6: Add the returned app mapping and revalidate**
 
@@ -844,7 +844,7 @@ git status --short
 npm run check
 ```
 
-Expected: clean worktree and all deterministic checks PASS. External review still in progress is not publication; report that single blocker and keep the release incomplete.
+Expected: clean worktree and all deterministic checks PASS. Exact native-app or custom-GPT checks that have not run remain `skipped` and must not be described as supported.
 
 ## Plan Self-Review Checklist
 
