@@ -142,7 +142,7 @@ export interface ReachAdapter {
 
 **Files:**
 - Create: `scripts/check-prerequisites.mjs`
-- Create: `test/prerequisites.test.ts`
+- Create: `test/prerequisites.test.mjs`
 - Create: `docs/evidence/surface-contract.md`
 - Modify: `docs/superpowers/specs/2026-08-01-reach-gateway-design.md`
 
@@ -152,8 +152,9 @@ export interface ReachAdapter {
 
 - [ ] **Step 1: Write the failing prerequisite-report test**
 
-```ts
-import { describe, expect, it } from "vitest";
+```js
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
 import { checkPrerequisites } from "../scripts/check-prerequisites.mjs";
 
 describe("publication gate", () => {
@@ -162,15 +163,15 @@ describe("publication gate", () => {
       { REACH_OWNER_SUB: "owner-123", REACH_OAUTH_ISSUER: "https://issuer.example" },
       { privateListing: async () => false, customGptApps: async () => true },
     );
-    expect(report.status).toBe("failed");
-    expect(report.blockers).toContain("PRIVATE_LISTING_UNVERIFIED");
+    assert.equal(report.status, "failed");
+    assert.ok(report.blockers.includes("PRIVATE_LISTING_UNVERIFIED"));
   });
 });
 ```
 
 - [ ] **Step 2: Run the isolated test and confirm the missing module failure**
 
-Run: `npx vitest run test/prerequisites.test.ts`
+Run: `node --test test/prerequisites.test.mjs`
 
 Expected: FAIL because `scripts/check-prerequisites.mjs` does not exist.
 
@@ -215,12 +216,12 @@ Change only surface names or publication wording supported by the evidence. Do n
 
 - [ ] **Step 6: Run and commit the gate**
 
-Run: `npx vitest run test/prerequisites.test.ts && REACH_PRIVATE_LISTING_VERIFIED=1 REACH_CUSTOM_GPT_APPS_VERIFIED=1 node scripts/check-prerequisites.mjs`
+Run: `node --test test/prerequisites.test.mjs && REACH_OWNER_SUB=owner-123 REACH_OAUTH_ISSUER=https://issuer.example REACH_PRIVATE_LISTING_VERIFIED=1 REACH_CUSTOM_GPT_APPS_VERIFIED=1 node scripts/check-prerequisites.mjs`
 
 Expected: test PASS; real report `passed` before continuing.
 
 ```bash
-git add scripts/check-prerequisites.mjs test/prerequisites.test.ts docs/evidence/surface-contract.md docs/superpowers/specs/2026-08-01-reach-gateway-design.md
+git add scripts/check-prerequisites.mjs test/prerequisites.test.mjs docs/evidence/surface-contract.md docs/superpowers/specs/2026-08-01-reach-gateway-design.md
 git commit -m "chore: prove reach gateway surface contract"
 ```
 
