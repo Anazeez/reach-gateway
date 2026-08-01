@@ -1,7 +1,7 @@
 # Reach Gateway Design
 
 Date: 2026-08-01
-Status: Approved direction; awaiting written-spec review
+Status: Approved; implementation gated on live surface verification
 Owner: User
 Working product name: Reach Gateway
 
@@ -34,7 +34,7 @@ Version 1 is:
 - public-source only;
 - read-only;
 - exposed through MCP;
-- packaged as a universal plugin with a reusable skill;
+- packaged as a cross-surface plugin with a reusable skill;
 - installed globally for Codex only after installed-copy validation and a
   fresh-session discovery test.
 
@@ -67,7 +67,7 @@ Rejected as the primary architecture. It could improve Codex on one machine,
 but ChatGPT and custom GPTs cannot depend on the owner's local shell, filesystem,
 or browser session.
 
-### 3.3 Private remote MCP plus universal plugin
+### 3.3 Private remote MCP plus cross-surface plugin
 
 Selected. It provides one cross-device contract, preserves strict read-only
 authority, centralizes routing and security, and allows the backend selection to
@@ -277,16 +277,18 @@ The completed product consists of:
 1. The stateless remote MCP service.
 2. A focused routing skill explaining native-tool preference, tool selection,
    provenance requirements, and failure semantics.
-3. A universal plugin manifest declaring the skill and MCP capability.
+3. A plugin manifest declaring the skill and MCP capability.
 4. Icons, metadata, privacy information, authentication configuration, and
    declared dependencies required by the target directory.
 5. Operational health, disable, rollback, and version-identification surfaces.
 
-The plugin is intended as an owner-private listing in the universal plugin
-directory, visible in the owner's applicable Personal or Created by me views.
-It is not a public multi-user listing. Surface availability will be reported
-only after exact installation, discovery, invocation, and authentication tests
-on that surface.
+The plugin is intended for the current OpenAI Plugin Directory and must remain
+owner-private through the applicable Personal, Created by me, or private
+workspace publication path. It is not a public multi-user listing. OpenAI
+currently documents custom MCP apps as web-only, so mobile is excluded unless a
+later exact verification passes. Surface availability will be reported only
+after installation, discovery, invocation, and authentication tests on that
+exact surface.
 
 The Codex skill is not considered installed until the final package is
 synchronized to:
@@ -364,7 +366,7 @@ Version 1 is complete only when:
    documented `unavailable` boundary accepted before release.
 4. Fallback and health behavior is deterministic and evidence-backed.
 5. The plugin bundle is complete and validated.
-6. The plugin is published to the intended owner-private universal directory
+6. The plugin is published to the intended owner-private Plugin Directory
    location and has a durable listing reference.
 7. The global Codex skill is installed and validated at the canonical path.
 8. Fresh supported Codex, ChatGPT, and custom-GPT checks prove installation,
@@ -385,7 +387,7 @@ Implementation will follow one bounded path:
    intended OpenAI surfaces.
 2. Build the gateway contract, policy layer, and test fixtures.
 3. Implement and live-test adapters one at a time.
-4. Package the routing skill and universal plugin.
+4. Package the routing skill and cross-surface plugin.
 5. Deploy behind owner authentication and run security checks.
 6. Publish privately and verify every supported surface from fresh sessions.
 7. Install and validate the global Codex skill.
