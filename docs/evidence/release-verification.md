@@ -29,6 +29,7 @@ Remaining acceptance blocker: exact native ChatGPT-app and custom-GPT invocation
 - Repository plugin validation: `passed`.
 - Personal source-plugin validation: `passed`.
 - Immutable installed-cache validation: `passed`.
+- Personal plugin uninstall and clean reinstall: `passed`; version `0.1.0` returned enabled and the rebuilt installed cache revalidated.
 - Package test catalog: `passed`; 8 positive and refusal cases parse as valid JSON.
 - Fresh Codex skill discovery: `passed`; a clean ephemeral invocation selected `reach-gateway` by exact name.
 - Fresh Codex app invocation: `passed`; `codex_apps/reach_the_g.health` returned overall `passed` and `passed` for Web, X, YouTube, Reddit, and RSS at 2026-08-01T20:27Z.
