@@ -30,17 +30,17 @@ beforeAll(async () => {
   keySet = createLocalJWKSet({ keys: [{ ...publicJwk, alg: "RS256", kid: "test-key" }] });
 });
 
-function bearerRequest(token?: string): Request {
+function accessRequest(token?: string): Request {
   return new Request("https://reach-gateway.example.com/mcp", {
-    headers: token ? { authorization: `Bearer ${token}` } : {},
+    headers: token ? { "cf-access-jwt-assertion": token } : {},
   });
 }
 
 async function fixtureToken(overrides: Record<string, unknown> = {}): Promise<string> {
   const now = Math.floor(Date.now() / 1000);
   const claims = {
-    sub: fixtureConfig.ownerSub,
-    scope: "reach:read",
+    sub: "cf-access-user-123",
+    email: fixtureConfig.ownerSub,
     iss: fixtureConfig.oauthIssuer,
     aud: fixtureConfig.oauthAudience,
     iat: now,
@@ -72,33 +72,33 @@ describe("OAuth protected-resource metadata", () => {
 });
 
 describe("verifyOwner", () => {
-  it("accepts the exact owner with the read scope", async () => {
-    const identity = await verifyOwner(bearerRequest(await fixtureToken()), fixtureConfig, keySet);
+  it("accepts the exact owner identity asserted by Cloudflare Access", async () => {
+    const identity = await verifyOwner(accessRequest(await fixtureToken()), fixtureConfig, keySet);
 
-    expect(identity).toEqual({ sub: "owner-123", scopes: ["reach:read"] });
+    expect(identity).toEqual({ sub: "cf-access-user-123", scopes: ["reach:read"] });
   });
 
-  it("rejects a validly signed token for a different owner", async () => {
-    const token = await fixtureToken({ sub: "other-owner" });
+  it("rejects a valid Access assertion for a different owner email", async () => {
+    const token = await fixtureToken({ email: "other@example.com" });
 
-    await expect(verifyOwner(bearerRequest(token), fixtureConfig, keySet)).rejects.toMatchObject({
+    await expect(verifyOwner(accessRequest(token), fixtureConfig, keySet)).rejects.toMatchObject({
       reasonCode: "AUTH_OWNER_DENIED",
       httpStatus: 401,
     });
   });
 
-  it("rejects missing, malformed, and missing-scope credentials", async () => {
-    await expect(verifyOwner(bearerRequest(), fixtureConfig, keySet)).rejects.toMatchObject({
+  it("rejects missing, malformed, and email-less Access assertions", async () => {
+    await expect(verifyOwner(accessRequest(), fixtureConfig, keySet)).rejects.toMatchObject({
       reasonCode: "AUTH_MISSING",
       httpStatus: 401,
     });
-    await expect(verifyOwner(bearerRequest("not-a-jwt"), fixtureConfig, keySet)).rejects.toMatchObject({
+    await expect(verifyOwner(accessRequest("not-a-jwt"), fixtureConfig, keySet)).rejects.toMatchObject({
       reasonCode: "AUTH_TOKEN_INVALID",
       httpStatus: 401,
     });
     await expect(
-      verifyOwner(bearerRequest(await fixtureToken({ scope: "profile" })), fixtureConfig, keySet),
-    ).rejects.toMatchObject({ reasonCode: "AUTH_SCOPE_MISSING", httpStatus: 401 });
+      verifyOwner(accessRequest(await fixtureToken({ email: undefined })), fixtureConfig, keySet),
+    ).rejects.toMatchObject({ reasonCode: "AUTH_OWNER_DENIED", httpStatus: 401 });
   });
 
   it.each([
@@ -107,15 +107,15 @@ describe("verifyOwner", () => {
     ["expired", { exp: 1 }, "AUTH_TOKEN_EXPIRED"],
   ])("rejects %s tokens", async (_label, overrides, reasonCode) => {
     await expect(
-      verifyOwner(bearerRequest(await fixtureToken(overrides)), fixtureConfig, keySet),
+      verifyOwner(accessRequest(await fixtureToken(overrides)), fixtureConfig, keySet),
     ).rejects.toMatchObject({ reasonCode, httpStatus: 401 });
   });
 
   it("never exposes the allowlisted subject in authentication errors", async () => {
-    const token = await fixtureToken({ sub: "other-owner" });
+    const token = await fixtureToken({ email: "other@example.com" });
 
     try {
-      await verifyOwner(bearerRequest(token), fixtureConfig, keySet);
+      await verifyOwner(accessRequest(token), fixtureConfig, keySet);
       throw new Error("expected authorization to fail");
     } catch (error) {
       expect(String(error)).not.toContain(fixtureConfig.ownerSub);

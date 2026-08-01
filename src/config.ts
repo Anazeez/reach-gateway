@@ -55,7 +55,7 @@ export function parseEnv(env: Env): ReachConfig {
     oauthIssuer,
     oauthAudience: required(env, "REACH_OAUTH_AUDIENCE"),
     ownerSub: required(env, "REACH_OWNER_SUB"),
-    braveSearchApiKey: required(env, "BRAVE_SEARCH_API_KEY"),
+    braveSearchApiKey: env.BRAVE_SEARCH_API_KEY?.trim() ?? "",
     publicOrigin,
     limits: Object.freeze({
       maxRedirects: positiveInteger(env, "REACH_MAX_REDIRECTS", LIMITS.maxRedirects),

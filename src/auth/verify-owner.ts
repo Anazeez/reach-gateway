@@ -38,19 +38,16 @@ function remoteKeySet(config: ReachConfig): JWTVerifyGetKey {
   if (cached) return cached;
 
   const keySet = createRemoteJWKSet(
-    new URL(".well-known/jwks.json", `${config.oauthIssuer}/`),
+    new URL("cdn-cgi/access/certs", `${config.oauthIssuer}/`),
   );
   jwksByIssuer.set(config.oauthIssuer, keySet);
   return keySet;
 }
 
-function bearerToken(request: Request, config: ReachConfig): string {
-  const authorization = request.headers.get("authorization");
-  if (!authorization) throw authError("AUTH_MISSING", config);
-
-  const match = /^Bearer ([^\s]+)$/i.exec(authorization);
-  if (!match?.[1]) throw authError("AUTH_MALFORMED", config);
-  return match[1];
+function accessAssertion(request: Request, config: ReachConfig): string {
+  const assertion = request.headers.get("cf-access-jwt-assertion")?.trim();
+  if (!assertion) throw authError("AUTH_MISSING", config);
+  return assertion;
 }
 
 function mapJoseError(error: unknown, config: ReachConfig): AuthError {
@@ -60,6 +57,7 @@ function mapJoseError(error: unknown, config: ReachConfig): AuthError {
   if (error instanceof errors.JWTClaimValidationFailed) {
     if (error.claim === "iss") return authError("AUTH_ISSUER_INVALID", config);
     if (error.claim === "aud") return authError("AUTH_AUDIENCE_INVALID", config);
+    if (error.claim === "email") return authError("AUTH_OWNER_DENIED", config);
   }
   return authError("AUTH_TOKEN_INVALID", config);
 }
@@ -69,7 +67,7 @@ export async function verifyOwner(
   config: ReachConfig,
   keySet: JWTVerifyGetKey = remoteKeySet(config),
 ): Promise<OwnerIdentity> {
-  const token = bearerToken(request, config);
+  const token = accessAssertion(request, config);
 
   let payload;
   try {
@@ -77,19 +75,14 @@ export async function verifyOwner(
       algorithms: [...ALGORITHMS],
       issuer: config.oauthIssuer,
       audience: config.oauthAudience,
-      requiredClaims: ["sub", "exp", "iat", "nbf"],
+      requiredClaims: ["sub", "email", "exp", "iat", "nbf"],
     }));
   } catch (error) {
     throw mapJoseError(error, config);
   }
 
-  if (payload.sub !== config.ownerSub) {
+  if (payload.email !== config.ownerSub) {
     throw authError("AUTH_OWNER_DENIED", config);
-  }
-
-  const scopes = String(payload.scope ?? "").split(/\s+/u).filter(Boolean);
-  if (!scopes.includes("reach:read")) {
-    throw authError("AUTH_SCOPE_MISSING", config);
   }
 
   return { sub: payload.sub, scopes: ["reach:read"] };
