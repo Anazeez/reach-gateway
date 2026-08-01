@@ -1,8 +1,8 @@
 # Reach Gateway Surface Contract Evidence
 
 Date: 2026-08-01
-Gate status: `passed` for implementation; post-deployment acceptance remains pending
-Blocking condition: none for local implementation
+Gate status: `passed` for deployment; post-connection acceptance remains pending
+Blocking condition: owner web connection and Cloudflare Access sign-in
 
 This record separates current platform documentation from checks performed on
 the owner's actual account. Documentation can establish that a feature exists;
@@ -14,15 +14,15 @@ or device.
 | # | Required check | Status | Account class | Evidence |
 |---|---|---|---|---|
 | 1 | Personal custom-plugin creation permission and publisher precedent | `passed` | ChatGPT Pro, personal | Owner screenshot at 2026-08-01 12:10 shows the New Plugin form with name, description, Server URL or Tunnel connection, OAuth selection, advanced OAuth discovery, icon upload, and explicit unverified-MCP consent. Developer mode was shown enabled at 12:09. The already installed Mnemosyne Shared Memory listing records `publisher_identity: individual-verified`, providing an account-level publication precedent without treating Reach as published. |
-| 2 | Web-installed owner-private plugin is inherited by supported native apps on another signed-in device | `skipped` | ChatGPT Plus or Pro, personal | Correctly deferred until a live MCP endpoint has been created and connected through the web form. This remains a mandatory post-deployment acceptance test of account-level Plugin Directory inheritance, including discovery, invocation, and OAuth on each intended native surface. |
-| 3 | Same private app selectable and invocable in a custom GPT preview | `skipped` | ChatGPT Pro, personal | Correctly deferred until the plugin has a live endpoint and can complete OAuth discovery. This remains a mandatory post-deployment acceptance test. |
+| 2 | Web-installed owner-private plugin is inherited by supported native apps on another signed-in device | `skipped` | ChatGPT Plus or Pro, personal | A live owner-gated MCP endpoint now exists. The owner must connect it through the web form before this account-level Plugin Directory inheritance check can run. |
+| 3 | Same private app selectable and invocable in a custom GPT preview | `skipped` | ChatGPT Pro, personal | A live endpoint with OAuth discovery now exists. The private plugin must first be connected before this acceptance check can run. |
 | 4 | Personal private creation without arbitrary-user installability | `passed` | ChatGPT Pro, personal | The owner reached New Plugin from the personal Plugins developer-mode surface, not a public directory submission flow. Public publication is not accepted as a substitute. Cross-device persistence and final visibility remain post-deployment checks. |
-| 5 | OAuth client surface accepts the selected provider profile | `pending` | ChatGPT Pro, personal | The New Plugin form explicitly supports OAuth and Advanced OAuth settings discovered from a valid MCP Server URL. An issuer and stable owner identity still must be selected before authenticated deployment. |
+| 5 | OAuth client surface accepts the selected provider profile | `pending` | ChatGPT Pro, personal | Infrastructure verification `passed`: the deployed Cloudflare Access Managed OAuth profile exposes dynamic registration and PKCE S256, and unauthenticated MCP access fails closed with protected-resource metadata. ChatGPT client acceptance remains pending until the owner submits the production URL and completes sign-in. |
 
 The observed creation surface is sufficient to start local implementation.
-Checks 2 and 3 require the resulting endpoint and are therefore release gates,
-not build gates. Check 5 gates authenticated deployment rather than local
-contract and security implementation.
+Checks 2, 3, and the client-acceptance portion of check 5 require the owner's
+one-time web connection. They remain release acceptance gates, not deployment
+gates.
 
 ## Current official platform findings
 
@@ -44,10 +44,9 @@ contract and security implementation.
 - Native and mobile apps are not excluded from this release in advance. Exact
   inherited availability remains a live post-install verification because
   plan, region, app capability, and surface support can differ.
-- The owner's existing Mnemosyne plugin uses a live OAuth 2.1 authorization
-  server with authorization code, refresh tokens, S256 PKCE, and dynamic client
-  registration, backed by GitHub identity. Reach may reuse that reviewed pattern
-  but must use its own scopes, audience, deployment, credentials, and authority.
+- Reach now uses its own Cloudflare Access application, Managed OAuth profile,
+  audience, exact-owner policy, deployment, and encrypted owner secret. It does
+  not reuse Mnemosyne scopes, credentials, or authority.
 
 Sources:
 
@@ -71,9 +70,9 @@ The original environment report before the owner supplied UI evidence was:
 
 ## Remaining external actions
 
-Local implementation may proceed. Before deployment, authenticate the target
-Cloudflare account and select an OAuth provider with a stable owner subject.
-After deployment, create and connect the plugin through the observed web form,
-then verify that the same directory installation is inherited and invocable on
-each intended native ChatGPT and Codex surface. Run the custom-GPT check as
-well before publication is called complete.
+Create and connect the plugin through the observed web form using
+`https://reach-gateway.izeesub.workers.dev/mcp` with OAuth, then verify an
+authenticated initialization and tool call. Afterward verify that the same
+directory installation is inherited and invocable on each intended native
+ChatGPT and Codex surface, and run the custom-GPT preview check before
+publication is called complete.
