@@ -284,11 +284,13 @@ The completed product consists of:
 
 The plugin is intended for the current OpenAI Plugin Directory and must remain
 owner-private through the applicable Personal, Created by me, or private
-workspace publication path. It is not a public multi-user listing. OpenAI
-currently documents custom MCP apps as web-only, so mobile is excluded unless a
-later exact verification passes. Surface availability will be reported only
-after installation, discovery, invocation, and authentication tests on that
-exact surface.
+workspace publication path. It is not a public multi-user listing. The web
+interface is the authoring and connection surface, not the boundary of plugin
+use. After the owner installs and connects the plugin, eligible ChatGPT and
+Codex native surfaces signed into that account are expected to inherit it from
+the Plugin Directory. No native or mobile surface is excluded in advance.
+Surface availability will still be reported only after inherited discovery,
+invocation, and authentication are tested on that exact surface and account.
 
 The Codex skill is not considered installed until the final package is
 synchronized to:

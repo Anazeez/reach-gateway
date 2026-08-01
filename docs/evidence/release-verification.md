@@ -12,6 +12,9 @@ Current blocker: production credential provisioning for Cloudflare, OAuth, and B
 - Deployment: `unavailable`; Wrangler reports that this machine is not authenticated
 - Live source suite: `skipped`; a skipped suite does not certify release
 - Plugin publication: `unavailable`; no verified production MCP URL exists yet
+- Cross-device inheritance: `skipped`; it requires web installation and
+  connection first, followed by discovery, invocation, and OAuth checks on each
+  intended native ChatGPT and Codex surface
 - Global skill installation: not started; it must reference the verified production MCP
 - Existing auth precedent: Mnemosyne proves this owner can connect a GitHub-backed
   OAuth 2.1 MCP, but its memory scopes and credentials are not reused by Reach
