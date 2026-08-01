@@ -1,0 +1,4 @@
+interface:
+  display_name: "Reach Gateway"
+  short_description: "Retrieve normalized public evidence through Reach"
+  default_prompt: "Use $reach-gateway to retrieve this public URL with provenance."

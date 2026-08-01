@@ -1,0 +1,36 @@
+{
+  "name": "reach-gateway",
+  "version": "0.1.0",
+  "description": "Owner-private, zero-paid retrieval of normalized public evidence.",
+  "author": {
+    "name": "Anazeez",
+    "email": "277895262+Anazeez@users.noreply.github.com",
+    "url": "https://github.com/Anazeez"
+  },
+  "homepage": "https://github.com/Anazeez/reach-gateway",
+  "repository": "https://github.com/Anazeez/reach-gateway",
+  "license": "MIT",
+  "keywords": ["public-evidence", "mcp", "youtube", "reddit", "rss", "x"],
+  "skills": "./skills/",
+  "apps": "./.app.json",
+  "interface": {
+    "displayName": "Reach the G",
+    "shortDescription": "Owner-private public evidence retrieval",
+    "longDescription": "Retrieve public Web, X, Reddit, RSS, and YouTube evidence through an owner-authenticated, read-only gateway with normalized provenance.",
+    "developerName": "Anazeez",
+    "category": "Productivity",
+    "capabilities": ["Read"],
+    "websiteURL": "https://reach-gateway.izeesub.workers.dev/",
+    "privacyPolicyURL": "https://reach-gateway.izeesub.workers.dev/privacy",
+    "termsOfServiceURL": "https://reach-gateway.izeesub.workers.dev/terms",
+    "defaultPrompt": [
+      "Read this public URL through Reach and preserve its provenance.",
+      "Get the public captions for this YouTube video.",
+      "Check every Reach evidence channel."
+    ],
+    "brandColor": "#2563EB",
+    "composerIcon": "./assets/icon.svg",
+    "logo": "./assets/icon.svg",
+    "logoDark": "./assets/icon-dark.svg"
+  }
+}
