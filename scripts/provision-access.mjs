@@ -8,6 +8,8 @@ const SOURCE_APP_NAME = "The Essentials MCP";
 const APP_NAME = "Reach Gateway";
 const HEALTH_APP_NAME = "Reach Gateway Health";
 const SCHEMA_APP_NAME = "Reach Gateway OpenAPI";
+const OAUTH_AUTHORIZE_APP_NAME = "Reach Gateway OAuth Authorize";
+const OAUTH_TOKEN_APP_NAME = "Reach Gateway OAuth Token";
 const DOMAIN = "reach-gateway.izeesub.workers.dev";
 const CUSTOM_GPT_REDIRECT_PATTERNS = [
   "https://chat.openai.com/aip/*",
@@ -71,6 +73,8 @@ function plan(sourceApp, sourcePolicies) {
     app: applicationBody(sourceApp),
     policy: policyBody(sourcePolicies),
     schemaApp: bypassApplicationBody(SCHEMA_APP_NAME, "/openapi.json"),
+    oauthAuthorizeApp: bypassApplicationBody(OAUTH_AUTHORIZE_APP_NAME, "/oauth/authorize"),
+    oauthTokenApp: bypassApplicationBody(OAUTH_TOKEN_APP_NAME, "/oauth/token"),
     ownerEmail: ownerEmail(sourcePolicies),
   };
 }
@@ -125,6 +129,28 @@ async function upsertPolicy(accountId, appId, existing, body) {
   });
 }
 
+async function provisionPublicBypass(accountId, apps, body, policyName) {
+  const existing = apps.find((candidate) => candidate.name === body.name);
+  const app = await upsertApplication(accountId, existing, body);
+  const policies = existing
+    ? await cloudflare(`/accounts/${accountId}/access/apps/${app.id}/policies?per_page=100`)
+    : [];
+  await upsertPolicy(
+    accountId,
+    app.id,
+    policies.find((policy) => policy.name === policyName),
+    {
+      name: policyName,
+      decision: "bypass",
+      include: [{ everyone: {} }],
+      require: [],
+      exclude: [],
+      precedence: 1,
+    },
+  );
+  return app;
+}
+
 async function provision(outputDirectory) {
   const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
   if (!accountId) throw new Error("CLOUDFLARE_ACCOUNT_ID is required");
@@ -147,6 +173,19 @@ async function provision(outputDirectory) {
     app.id,
     appPolicies.find((policy) => policy.name === desired.policy.name),
     desired.policy,
+  );
+
+  const oauthAuthorizeApp = await provisionPublicBypass(
+    accountId,
+    apps,
+    desired.oauthAuthorizeApp,
+    "Public OAuth authorization endpoint",
+  );
+  const oauthTokenApp = await provisionPublicBypass(
+    accountId,
+    apps,
+    desired.oauthTokenApp,
+    "Public OAuth token endpoint",
   );
 
   const existingSchema = apps.find((candidate) => candidate.name === SCHEMA_APP_NAME);
@@ -214,6 +253,8 @@ async function provision(outputDirectory) {
       appId: app.id,
       healthAppId: healthApp.id,
       schemaAppId: schemaApp.id,
+      oauthAuthorizeAppId: oauthAuthorizeApp.id,
+      oauthTokenAppId: oauthTokenApp.id,
     }),
     { mode: 0o600 },
   );
