@@ -17,6 +17,62 @@ const context = {
 } as unknown as ExecutionContext;
 
 describe("Worker HTTP surface", () => {
+  it("redirects the compatibility authorization endpoint with the protected resource", async () => {
+    const response = await worker.fetch(
+      new Request(
+        "https://reach-gateway.example.com/oauth/authorize?response_type=code&client_id=client-1&redirect_uri=https%3A%2F%2Fchatgpt.com%2Faip%2Fg-test%2Foauth%2Fcallback&scope=reach%3Aread&state=state-1",
+      ),
+      fixtureEnv,
+      context,
+    );
+
+    expect(response.status).toBe(302);
+    const target = new URL(response.headers.get("location")!);
+    expect(`${target.origin}${target.pathname}`).toBe(
+      "https://auth.example.com/cdn-cgi/access/oauth/authorization",
+    );
+    expect(target.searchParams.get("resource")).toBe(
+      "https://reach-gateway.example.com",
+    );
+    expect(target.searchParams.get("client_id")).toBe("client-1");
+    expect(target.searchParams.get("state")).toBe("state-1");
+  });
+
+  it("adds the protected resource to token exchanges without exposing the body", async () => {
+    const upstream = vi.fn().mockResolvedValue(
+      Response.json({ error: "invalid_grant" }, { status: 400 }),
+    );
+    vi.stubGlobal("fetch", upstream);
+
+    try {
+      const response = await worker.fetch(
+        new Request("https://reach-gateway.example.com/oauth/token", {
+          method: "POST",
+          headers: {
+            authorization: "Basic sensitive-client-credentials",
+            "content-type": "application/x-www-form-urlencoded",
+          },
+          body: "grant_type=authorization_code&code=sensitive-code",
+        }),
+        fixtureEnv,
+        context,
+      );
+
+      expect(response.status).toBe(400);
+      expect(upstream).toHaveBeenCalledOnce();
+      const [target, init] = upstream.mock.calls[0] as [string, RequestInit];
+      expect(target).toBe("https://auth.example.com/cdn-cgi/access/oauth/token");
+      expect(new URLSearchParams(init.body as string).get("resource")).toBe(
+        "https://reach-gateway.example.com",
+      );
+      expect((init.headers as Headers).get("authorization")).toBe(
+        "Basic sensitive-client-credentials",
+      );
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
   it("serves protected-resource metadata without exposing owner identity", async () => {
     const response = await worker.fetch(
       new Request("https://reach-gateway.example.com/.well-known/oauth-protected-resource"),

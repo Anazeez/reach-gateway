@@ -2,6 +2,10 @@ import { createMcpHandler } from "agents/mcp/server";
 
 import { handleActionRequest, openApiResponse } from "./actions";
 import { oauthChallenge, protectedResourceMetadata } from "./auth/metadata";
+import {
+  authorizeCompatibilityRedirect,
+  proxyTokenExchange,
+} from "./auth/oauth-compat";
 import { AuthError, verifyOwner } from "./auth/verify-owner";
 import { parseEnv } from "./config";
 import { healthzResponse, legalResponse, versionResponse } from "./legal";
@@ -34,6 +38,10 @@ async function handle(request: Request, env: Env, context: ExecutionContext): Pr
   if (url.pathname === "/.well-known/oauth-protected-resource") {
     return Response.json(protectedResourceMetadata(config));
   }
+  if (url.pathname === "/oauth/authorize") {
+    return authorizeCompatibilityRedirect(request, config);
+  }
+  if (url.pathname === "/oauth/token") return proxyTokenExchange(request, config);
 
   const isMcp = url.pathname === "/mcp";
   const isAction = url.pathname.startsWith("/v1/reach/");
