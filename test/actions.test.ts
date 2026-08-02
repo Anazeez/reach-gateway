@@ -41,16 +41,13 @@ describe("Custom GPT Actions facade", () => {
     );
   });
 
-  it("declares plain compatibility endpoints for the GPT OAuth client", () => {
-    const flow =
-      OPENAPI_DOCUMENT.components.securitySchemes.oauth.flows.authorizationCode;
-
-    expect(flow.authorizationUrl).toBe(
-      "https://reach-gateway.izeesub.workers.dev/oauth/authorize",
-    );
-    expect(flow.tokenUrl).toBe(
-      "https://reach-gateway.izeesub.workers.dev/oauth/token",
-    );
+  it("declares bearer authentication for the private GPT Action", () => {
+    expect(OPENAPI_DOCUMENT.security).toEqual([{ actionBearer: [] }]);
+    expect(OPENAPI_DOCUMENT.components.securitySchemes.actionBearer).toEqual({
+      type: "http",
+      scheme: "bearer",
+      bearerFormat: "opaque",
+    });
   });
 
   it("routes a JSON action request through the shared Reach executor", async () => {

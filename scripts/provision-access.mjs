@@ -10,6 +10,7 @@ const HEALTH_APP_NAME = "Reach Gateway Health";
 const SCHEMA_APP_NAME = "Reach Gateway OpenAPI";
 const OAUTH_AUTHORIZE_APP_NAME = "Reach Gateway OAuth Authorize";
 const OAUTH_TOKEN_APP_NAME = "Reach Gateway OAuth Token";
+const ACTION_APP_NAME = "Reach Gateway GPT Actions";
 const DOMAIN = "reach-gateway.izeesub.workers.dev";
 const CUSTOM_GPT_REDIRECT_PATTERNS = [
   "https://chat.openai.com/aip/*",
@@ -75,6 +76,7 @@ function plan(sourceApp, sourcePolicies) {
     schemaApp: bypassApplicationBody(SCHEMA_APP_NAME, "/openapi.json"),
     oauthAuthorizeApp: bypassApplicationBody(OAUTH_AUTHORIZE_APP_NAME, "/oauth/authorize"),
     oauthTokenApp: bypassApplicationBody(OAUTH_TOKEN_APP_NAME, "/oauth/token"),
+    actionApp: bypassApplicationBody(ACTION_APP_NAME, "/v1/reach/*"),
     ownerEmail: ownerEmail(sourcePolicies),
   };
 }
@@ -187,6 +189,12 @@ async function provision(outputDirectory) {
     desired.oauthTokenApp,
     "Public OAuth token endpoint",
   );
+  const actionApp = await provisionPublicBypass(
+    accountId,
+    apps,
+    desired.actionApp,
+    "Public GPT Action transport",
+  );
 
   const existingSchema = apps.find((candidate) => candidate.name === SCHEMA_APP_NAME);
   const schemaApp = await upsertApplication(accountId, existingSchema, desired.schemaApp);
@@ -255,6 +263,7 @@ async function provision(outputDirectory) {
       schemaAppId: schemaApp.id,
       oauthAuthorizeAppId: oauthAuthorizeApp.id,
       oauthTokenAppId: oauthTokenApp.id,
+      actionAppId: actionApp.id,
     }),
     { mode: 0o600 },
   );

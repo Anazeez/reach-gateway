@@ -75,14 +75,14 @@ export const OPENAPI_DOCUMENT = Object.freeze({
     description: "Owner-private, read-only retrieval of normalized public evidence.",
   },
   servers: [{ url: ORIGIN }],
-  security: [{ oauth: ["reach:read"] }],
+  security: [{ actionBearer: [] }],
   paths: {
     "/v1/reach/read": {
       post: {
         operationId: "readPublicUrl",
         summary: "Read one public HTTPS URL",
         description: "Retrieve inert public evidence with provenance.",
-        security: [{ oauth: ["reach:read"] }],
+        security: [{ actionBearer: [] }],
         requestBody: urlRequest,
         responses: standardResponses,
         "x-openai-isConsequential": false,
@@ -93,7 +93,7 @@ export const OPENAPI_DOCUMENT = Object.freeze({
         operationId: "getPublicTranscript",
         summary: "Get available public YouTube captions",
         description: "Retrieve captions for one supported public YouTube URL.",
-        security: [{ oauth: ["reach:read"] }],
+        security: [{ actionBearer: [] }],
         requestBody: urlRequest,
         responses: standardResponses,
         "x-openai-isConsequential": false,
@@ -104,7 +104,7 @@ export const OPENAPI_DOCUMENT = Object.freeze({
         operationId: "checkEvidenceChannels",
         summary: "Check Reach evidence channels",
         description: "Report bounded availability for public evidence channels.",
-        security: [{ oauth: ["reach:read"] }],
+        security: [{ actionBearer: [] }],
         requestBody: {
           required: false,
           content: {
@@ -165,17 +165,10 @@ export const OPENAPI_DOCUMENT = Object.freeze({
       },
     },
     securitySchemes: {
-      oauth: {
-        type: "oauth2",
-        flows: {
-          authorizationCode: {
-            authorizationUrl: `${ORIGIN}/oauth/authorize`,
-            tokenUrl: `${ORIGIN}/oauth/token`,
-            scopes: {
-              "reach:read": "Read public evidence through the owner-private Reach gateway",
-            },
-          },
-        },
+      actionBearer: {
+        type: "http",
+        scheme: "bearer",
+        bearerFormat: "opaque",
       },
     },
   },
@@ -203,7 +196,7 @@ export async function handleActionRequest(
 ): Promise<Response> {
   const route = `${request.method} ${new URL(request.url).pathname}`;
   const action = ACTION_ROUTES[route as keyof typeof ACTION_ROUTES];
-  const requestId = (dependencies.requestId ?? crypto.randomUUID)();
+  const requestId = (dependencies.requestId ?? (() => crypto.randomUUID()))();
   if (!action) return normalizedError("SOURCE_NOT_FOUND", 404, requestId);
 
   try {

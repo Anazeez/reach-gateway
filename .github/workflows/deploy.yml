@@ -12,6 +12,8 @@ name: Deploy Reach Gateway
     secrets:
       cloudflare_api_token:
         required: true
+      reach_action_key:
+        required: true
 
 permissions:
   contents: read
@@ -94,10 +96,13 @@ jobs:
             --var "REACH_OAUTH_ISSUER:${issuer}" \
             --var "REACH_OAUTH_AUDIENCE:${audience}"
           npx wrangler secret put REACH_OWNER_SUB < "$RUNNER_TEMP/reach-access/owner-email"
+          printf '%s' "$REACH_ACTION_KEY" | npx wrangler secret put REACH_ACTION_KEY
           npx wrangler deploy \
             --var "REACH_PUBLIC_ORIGIN:${REACH_ORIGIN}" \
             --var "REACH_OAUTH_ISSUER:${issuer}" \
             --var "REACH_OAUTH_AUDIENCE:${audience}"
+        env:
+          REACH_ACTION_KEY: ${{ secrets.reach_action_key }}
 
       - name: Verify live health, Action schema, and OAuth boundary
         shell: bash

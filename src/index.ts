@@ -7,6 +7,7 @@ import {
   proxyTokenExchange,
 } from "./auth/oauth-compat";
 import { AuthError, verifyOwner } from "./auth/verify-owner";
+import { verifyActionBearer } from "./auth/verify-action";
 import { parseEnv } from "./config";
 import { healthzResponse, legalResponse, versionResponse } from "./legal";
 import { createReachServer } from "./tools/register-tools";
@@ -17,6 +18,7 @@ interface Env extends Record<string, string | undefined> {
   REACH_OWNER_SUB: string;
   REACH_PUBLIC_ORIGIN: string;
   OPENAI_APPS_CHALLENGE?: string;
+  REACH_ACTION_KEY?: string;
 }
 
 async function handle(request: Request, env: Env, context: ExecutionContext): Promise<Response> {
@@ -47,6 +49,13 @@ async function handle(request: Request, env: Env, context: ExecutionContext): Pr
   const isAction = url.pathname.startsWith("/v1/reach/");
   if (!isMcp && !isAction) return new Response("Not found\n", { status: 404 });
 
+  if (isAction) {
+    if (!(await verifyActionBearer(request, env.REACH_ACTION_KEY))) {
+      return Response.json({ error: "unauthorized" }, { status: 401 });
+    }
+    return handleActionRequest(request, env);
+  }
+
   try {
     await verifyOwner(request, config);
   } catch (error) {
@@ -69,8 +78,6 @@ async function handle(request: Request, env: Env, context: ExecutionContext): Pr
       },
     );
   }
-
-  if (isAction) return handleActionRequest(request, env);
 
   const handler = createMcpHandler(() => createReachServer(env), {
     route: "/mcp",

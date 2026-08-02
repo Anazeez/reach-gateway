@@ -12,9 +12,7 @@
   ],
   "security": [
     {
-      "oauth": [
-        "reach:read"
-      ]
+      "actionBearer": []
     }
   ],
   "paths": {
@@ -25,9 +23,7 @@
         "description": "Retrieve inert public evidence with provenance.",
         "security": [
           {
-            "oauth": [
-              "reach:read"
-            ]
+            "actionBearer": []
           }
         ],
         "requestBody": {
@@ -60,9 +56,7 @@
         "description": "Retrieve captions for one supported public YouTube URL.",
         "security": [
           {
-            "oauth": [
-              "reach:read"
-            ]
+            "actionBearer": []
           }
         ],
         "requestBody": {
@@ -95,9 +89,7 @@
         "description": "Report bounded availability for public evidence channels.",
         "security": [
           {
-            "oauth": [
-              "reach:read"
-            ]
+            "actionBearer": []
           }
         ],
         "requestBody": {
@@ -292,17 +284,10 @@
       }
     },
     "securitySchemes": {
-      "oauth": {
-        "type": "oauth2",
-        "flows": {
-          "authorizationCode": {
-            "authorizationUrl": "https://reach-gateway.izeesub.workers.dev/oauth/authorize",
-            "tokenUrl": "https://reach-gateway.izeesub.workers.dev/oauth/token",
-            "scopes": {
-              "reach:read": "Read public evidence through the owner-private Reach gateway"
-            }
-          }
-        }
+      "actionBearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "opaque"
       }
     }
   }

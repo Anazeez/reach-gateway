@@ -8,6 +8,7 @@ const fixtureEnv = {
   REACH_OWNER_SUB: "owner-123",
   REACH_PUBLIC_ORIGIN: "https://reach-gateway.example.com",
   OPENAI_APPS_CHALLENGE: "challenge-value",
+  REACH_ACTION_KEY: "action-secret",
 };
 
 const context = {
@@ -137,9 +138,35 @@ describe("Worker HTTP surface", () => {
     );
 
     expect(response.status).toBe(401);
-    expect(response.headers.get("www-authenticate")).toContain(
-      "/.well-known/oauth-protected-resource",
+    expect(response.headers.get("www-authenticate")).toBeNull();
+  });
+
+  it("accepts the private Action bearer before parsing the request", async () => {
+    const response = await worker.fetch(
+      new Request("https://reach-gateway.example.com/v1/reach/read", {
+        method: "POST",
+        headers: { authorization: "Bearer action-secret" },
+        body: "not-json",
+      }),
+      fixtureEnv,
+      context,
     );
+
+    expect(response.status).toBe(400);
+  });
+
+  it("rejects an incorrect Action bearer", async () => {
+    const response = await worker.fetch(
+      new Request("https://reach-gateway.example.com/v1/reach/read", {
+        method: "POST",
+        headers: { authorization: "Bearer wrong-secret" },
+        body: "not-json",
+      }),
+      fixtureEnv,
+      context,
+    );
+
+    expect(response.status).toBe(401);
   });
 
   it("records a correlation-safe reason when Access authentication is rejected", async () => {

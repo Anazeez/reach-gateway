@@ -89,6 +89,16 @@ test("plans an owner-private Managed OAuth application without exposing the owne
     session_duration: "24h",
     app_launcher_visible: false,
   });
+  assert.deepEqual(plan.actionApp, {
+    name: "Reach Gateway GPT Actions",
+    domain: "reach-gateway.izeesub.workers.dev/v1/reach/*",
+    destinations: [
+      { type: "public", uri: "reach-gateway.izeesub.workers.dev/v1/reach/*" },
+    ],
+    type: "self_hosted",
+    session_duration: "24h",
+    app_launcher_visible: false,
+  });
   assert.equal(plan.ownerEmail, "owner@example.com");
   assert.equal(result.stdout.includes("owner@example.com"), false);
   assert.equal(result.stderr.includes("owner@example.com"), false);
