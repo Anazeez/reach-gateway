@@ -27,7 +27,25 @@
           }
         ],
         "requestBody": {
-          "$ref": "#/components/requestBodies/PublicUrl"
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "pattern": "^https://"
+                  }
+                },
+                "required": [
+                  "url"
+                ]
+              }
+            }
+          }
         },
         "responses": {
           "200": {
@@ -60,7 +78,25 @@
           }
         ],
         "requestBody": {
-          "$ref": "#/components/requestBodies/PublicUrl"
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "pattern": "^https://"
+                  }
+                },
+                "required": [
+                  "url"
+                ]
+              }
+            }
+          }
         },
         "responses": {
           "200": {

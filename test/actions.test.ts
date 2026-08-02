@@ -50,6 +50,19 @@ describe("Custom GPT Actions facade", () => {
     });
   });
 
+  it("inlines URL request bodies for GPT Action compatibility", () => {
+    for (const pathname of ["/v1/reach/read", "/v1/reach/transcript"] as const) {
+      const body = OPENAPI_DOCUMENT.paths[pathname].post.requestBody;
+      expect(body).not.toHaveProperty("$ref");
+      expect(body.content["application/json"].schema).toEqual({
+        type: "object",
+        additionalProperties: false,
+        properties: { url: { type: "string", format: "uri", pattern: "^https://" } },
+        required: ["url"],
+      });
+    }
+  });
+
   it("routes a JSON action request through the shared Reach executor", async () => {
     const execute = vi.fn().mockResolvedValue(passedEnvelope);
     const response = await handleActionRequest(

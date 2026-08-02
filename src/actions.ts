@@ -65,7 +65,19 @@ const standardResponses = {
   500: { description: "Bounded internal failure" },
 } as const;
 
-const urlRequest = { $ref: "#/components/requestBodies/PublicUrl" } as const;
+const urlRequest = {
+  required: true,
+  content: {
+    "application/json": {
+      schema: {
+        type: "object",
+        additionalProperties: false,
+        properties: { url: { type: "string", format: "uri", pattern: "^https://" } },
+        required: ["url"],
+      },
+    },
+  },
+} as const;
 
 export const OPENAPI_DOCUMENT = Object.freeze({
   openapi: "3.1.0",
